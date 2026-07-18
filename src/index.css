@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Only --primary / --primary-foreground / --ring are meant to change at
+  runtime (see src/lib/theme.ts + Settings > Appearance). Every other
+  variable here is the fixed neutral scale the rest of the dashboard is
+  built on — do not wire these to the color picker, or contrast/readability
+  breaks elsewhere in the UI.
+*/
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 20% 12%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 14% 44%;
+
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 222 20% 12%;
+
+    --accent: 210 20% 94%;
+    --accent-foreground: 222 20% 12%;
+
+    --border: 214 18% 90%;
+    --input: 214 18% 88%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 45% 32%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 26 30% 12%;
+
+    /* Adjustable — overwritten at runtime by applyPrimaryColor() */
+    --primary: 174 61% 14%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 174 61% 14%;
+
+    --radius: 0.6rem;
+  }
+
+  .dark {
+    --background: 222 24% 9%;
+    --foreground: 210 20% 96%;
+
+    --card: 222 22% 12%;
+    --card-foreground: 210 20% 96%;
+
+    --popover: 222 22% 12%;
+    --popover-foreground: 210 20% 96%;
+
+    --muted: 222 18% 16%;
+    --muted-foreground: 215 14% 65%;
+
+    --secondary: 222 18% 16%;
+    --secondary-foreground: 210 20% 96%;
+
+    --accent: 222 18% 18%;
+    --accent-foreground: 210 20% 96%;
+
+    --border: 222 16% 20%;
+    --input: 222 16% 22%;
+
+    --destructive: 0 63% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 40% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 85% 55%;
+    --warning-foreground: 26 30% 12%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  ::selection {
+    @apply bg-primary/20;
+  }
+}
+
+/* Thin, unobtrusive scrollbars for tables and the sidebar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-border;
+}
