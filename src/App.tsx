@@ -16,6 +16,7 @@ import FaqsPage from "@/pages/faqs/faqs-page";
 import MessagesPage from "@/pages/messages/messages-page";
 import SettingsPage from "@/pages/settings/settings-page";
 import NotFoundPage from "@/pages/not-found-page";
+import Landscaping from "./pages/projects/landscaping";
 
 export default function App() {
   return (
@@ -29,7 +30,8 @@ export default function App() {
               <Route element={<DashboardLayout />}>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/services" element={<ServicesPage />} />
-                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/landscaping" element={<Landscaping />} />
+                <Route path="/pools" element={<ProjectsPage />} />
                 <Route path="/gallery" element={<GalleryPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/testimonials" element={<TestimonialsPage />} />

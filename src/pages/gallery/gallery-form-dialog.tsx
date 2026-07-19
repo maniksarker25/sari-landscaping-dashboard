@@ -13,7 +13,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { galleryFormSchema, type GalleryFormValues } from "@/lib/validations";
 import { useGalleryStore } from "@/lib/content-stores";
 import { generateId } from "@/lib/utils";
@@ -32,7 +38,11 @@ const categoryLabels: Record<GalleryFormValues["category"], string> = {
   lighting: "Lighting",
 };
 
-export function GalleryFormDialog({ open, image, onOpenChange }: GalleryFormDialogProps) {
+export function GalleryFormDialog({
+  open,
+  image,
+  onOpenChange,
+}: GalleryFormDialogProps) {
   const add = useGalleryStore((s) => s.add);
   const update = useGalleryStore((s) => s.update);
   const isEditing = !!image;
@@ -51,7 +61,11 @@ export function GalleryFormDialog({ open, image, onOpenChange }: GalleryFormDial
 
   React.useEffect(() => {
     if (open) {
-      reset(image ? { src: image.src, alt: image.alt, category: image.category } : { src: "", alt: "", category: "pools" });
+      reset(
+        image
+          ? { src: image.src, alt: image.alt, category: image.category }
+          : { src: "", alt: "", category: "pools" },
+      );
     }
   }, [open, image, reset]);
 
@@ -64,7 +78,11 @@ export function GalleryFormDialog({ open, image, onOpenChange }: GalleryFormDial
       update(image.id, { ...values, updatedAt: new Date().toISOString() });
       toast.success("Image updated");
     } else {
-      add({ id: generateId("img"), ...values, updatedAt: new Date().toISOString() });
+      add({
+        id: generateId("img"),
+        ...values,
+        updatedAt: new Date().toISOString(),
+      });
       toast.success("Image added to gallery");
     }
     onOpenChange(false);
@@ -76,32 +94,55 @@ export function GalleryFormDialog({ open, image, onOpenChange }: GalleryFormDial
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Image" : "Add Image"}</DialogTitle>
           <DialogDescription>
-            {isEditing ? "Update this gallery image." : "Add a new image to the gallery."}
+            {isEditing
+              ? "Update this gallery image."
+              : "Add a new image to the gallery."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="space-y-4"
+        >
           <div className="space-y-2">
             <Label htmlFor="src">Image URL</Label>
             <Input id="src" placeholder="https://..." {...register("src")} />
-            {errors.src && <p className="text-xs text-destructive">{errors.src.message}</p>}
+            {errors.src && (
+              <p className="text-xs text-destructive">{errors.src.message}</p>
+            )}
           </div>
 
           {src && !errors.src && (
             <div className="aspect-video w-full overflow-hidden rounded-md border border-border bg-muted">
-              <img src={src} alt="Preview" className="h-full w-full object-cover" />
+              <img
+                src={src}
+                alt="Preview"
+                className="h-full w-full object-cover"
+              />
             </div>
           )}
 
           <div className="space-y-2">
             <Label htmlFor="alt">Alt text</Label>
-            <Input id="alt" placeholder="Describe the image for accessibility & SEO" {...register("alt")} />
-            {errors.alt && <p className="text-xs text-destructive">{errors.alt.message}</p>}
+            <Input
+              id="alt"
+              placeholder="Describe the image for accessibility & SEO"
+              {...register("alt")}
+            />
+            {errors.alt && (
+              <p className="text-xs text-destructive">{errors.alt.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label>Category</Label>
-            <Select value={category} onValueChange={(value) => setValue("category", value as GalleryFormValues["category"])}>
+            <Label>Service</Label>
+            <Select
+              value={category}
+              onValueChange={(value) =>
+                setValue("category", value as GalleryFormValues["category"])
+              }
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -116,7 +157,11 @@ export function GalleryFormDialog({ open, image, onOpenChange }: GalleryFormDial
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
