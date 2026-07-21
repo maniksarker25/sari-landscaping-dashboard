@@ -179,7 +179,7 @@ export default function DashboardPage() {
             <CardDescription>Drafts waiting to be published.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {[...services.filter((s) => s.status === "draft"), ...blogPosts.filter((p) => p.status === "draft")]
+            {[...services.filter((s) => !s.isPublished), ...blogPosts.filter((p) => p.status === "draft")]
               .slice(0, 4)
               .map((item) => (
                 <div key={item.id} className="flex items-center justify-between rounded-md px-2 py-2 text-sm hover:bg-muted/50">

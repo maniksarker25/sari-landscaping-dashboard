@@ -17,6 +17,7 @@ import SettingsPage from "@/pages/settings/settings-page";
 import NotFoundPage from "@/pages/not-found-page";
 import Landscaping from "./pages/projects/landscaping";
 import PoolsPage from "@/pages/projects/pools";
+import ServiceBuilderPage from "./pages/services/service-builder-page";
 
 export default function App() {
   return (
@@ -30,6 +31,11 @@ export default function App() {
               <Route element={<DashboardLayout />}>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/services" element={<ServicesPage />} />
+                <Route path="/services/new" element={<ServiceBuilderPage />} />
+                <Route
+                  path="/services/edit/:id"
+                  element={<ServiceBuilderPage />}
+                />
                 <Route path="/landscaping" element={<Landscaping />} />
                 <Route path="/pools" element={<PoolsPage />} />
                 <Route path="/gallery" element={<GalleryPage />} />

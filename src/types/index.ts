@@ -1,14 +1,101 @@
 export type ContentStatus = "published" | "draft";
 
+export interface HeroContent {
+  headline: string;
+  subheadline?: string;
+  bgImage: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+export interface FeatureItem {
+  title: string;
+  description?: string;
+  iconUrl?: string;
+}
+
+export interface GalleryItem {
+  imageUrl: string;
+  caption?: string;
+  altText?: string;
+}
+
+export interface AccordionItem {
+  question: string;
+  answer: string;
+}
+
+export interface CtaContent {
+  title: string;
+  description?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  phoneNumber?: string;
+}
+
+export interface TechnicalSpec {
+  label: string;
+  value: string;
+}
+
+export interface BlockContent {
+  hero?: HeroContent;
+  richTextHtml?: string;
+  features?: FeatureItem[];
+  gallery?: GalleryItem[];
+  accordionItems?: AccordionItem[];
+  cta?: CtaContent;
+  specs?: TechnicalSpec[];
+}
+
+export type BlockType =
+  | "hero_section"
+  | "rich_text_jodit"
+  | "features_grid"
+  | "gallery_grid"
+  | "faq_accordion"
+  | "cta_banner"
+  | "technical_specs"
+  | "contact_form";
+
+export type LayoutStyle =
+  | "grid_2_col"
+  | "grid_3_col"
+  | "grid_4_col"
+  | "grid_6_col"
+  | "default"
+  | "full_width"
+  | "container_centered"
+  | "two_column_split"
+  | "card_grid"
+  | "accent_bg";
+
+export interface PageBlock {
+  _id: string;
+  blockType: BlockType;
+  order: number;
+  layoutStyle: LayoutStyle;
+  content: BlockContent;
+}
+
+export interface SeoSettings {
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  canonicalUrl?: string;
+  ogImage?: string;
+}
+
 export interface Service {
   id: string;
-  slug: string;
   title: string;
-  shortDescription: string;
-  description: string;
-  heroImage: string;
-  features: string[];
-  status: ContentStatus;
+  slug: string;
+  category: "Pools" | "Landscaping";
+  isPublished: boolean;
+  featuredImage: string;
+  sections: PageBlock[];
+  seo?: SeoSettings;
+  createdAt?: string;
   updatedAt: string;
 }
 

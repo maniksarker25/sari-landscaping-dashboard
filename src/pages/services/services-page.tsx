@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, MoreHorizontal, ImageOff } from "lucide-react";
 import { PageHeader } from "@/components/common/page-header";
@@ -25,22 +26,17 @@ import { Wrench } from "lucide-react";
 import { useServicesStore } from "@/lib/content-stores";
 import { formatDate } from "@/lib/utils";
 import type { Service } from "@/types";
-import { ServiceFormDialog } from "@/pages/services/service-form-dialog";
-import Tiptap from "@/components/common/Tiptap";
 
 export default function ServicesPage() {
+  const navigate = useNavigate();
   const items = useServicesStore((s) => s.items);
   const remove = useServicesStore((s) => s.remove);
 
   const [search, setSearch] = React.useState("");
-  const [formState, setFormState] = React.useState<{
-    open: boolean;
-    service?: Service;
-  }>({ open: false });
   const [deleteTarget, setDeleteTarget] = React.useState<Service | null>(null);
 
   const filtered = items.filter((service) =>
-    [service.title, service.shortDescription]
+    [service.title, service.category, service.slug]
       .join(" ")
       .toLowerCase()
       .includes(search.toLowerCase()),
@@ -57,7 +53,7 @@ export default function ServicesPage() {
         title="Services"
         description="Manage the services listed on your website."
         actions={
-          <Button onClick={() => setFormState({ open: true })}>
+          <Button onClick={() => navigate("/services/new")}>
             <Plus className="h-4 w-4" /> Add Service
           </Button>
         }
@@ -75,7 +71,7 @@ export default function ServicesPage() {
           title="No services found"
           description="Try a different search, or add your first service."
           action={
-            <Button onClick={() => setFormState({ open: true })}>
+            <Button onClick={() => navigate("/services/new")}>
               <Plus className="h-4 w-4" /> Add Service
             </Button>
           }
@@ -97,9 +93,9 @@ export default function ServicesPage() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                        {service.heroImage ? (
+                        {service.featuredImage ? (
                           <img
-                            src={service.heroImage}
+                            src={service.featuredImage}
                             alt=""
                             className="h-full w-full object-cover"
                           />
@@ -112,13 +108,13 @@ export default function ServicesPage() {
                           {service.title}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
-                          /{service.slug}
+                          /{service.slug} • {service.category}
                         </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={service.status} />
+                    <StatusBadge status={service.isPublished ? "published" : "draft"} />
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {formatDate(service.updatedAt)}
@@ -136,7 +132,7 @@ export default function ServicesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => setFormState({ open: true, service })}
+                          onClick={() => navigate(`/services/edit/${service.id}`)}
                         >
                           <Pencil className="h-4 w-4" /> Edit
                         </DropdownMenuItem>
@@ -155,12 +151,6 @@ export default function ServicesPage() {
           </Table>
         </div>
       )}
-
-      <ServiceFormDialog
-        open={formState.open}
-        service={formState.service}
-        onOpenChange={(open) => setFormState((s) => ({ ...s, open }))}
-      />
 
       <ConfirmDeleteDialog
         open={!!deleteTarget}

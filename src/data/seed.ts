@@ -13,36 +13,139 @@ export const seedServices: Service[] = [
     id: "svc_1",
     slug: "custom-pool-construction",
     title: "Custom Pool Construction",
-    shortDescription: "Engineered swimming pools shaped around your architecture.",
-    description:
-      "We design and build swimming pools as an extension of your home's architecture rather than an afterthought in the yard.",
-    heroImage: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
-    features: ["Infinity & vanishing-edge pools", "Plunge & lap pools", "Structural engineering & waterproofing"],
-    status: "published",
-    updatedAt: "2026-06-28T10:00:00Z",
+    category: "Pools",
+    isPublished: true,
+    featuredImage: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
+    sections: [
+      {
+        _id: "b1",
+        blockType: "hero_section",
+        order: 0,
+        layoutStyle: "full_width",
+        content: {
+          hero: {
+            headline: "Bespoke Pools Designed Around Your Architecture",
+            subheadline: "We engineer and craft high-end swimming pools built to last.",
+            bgImage: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
+            ctaText: "Request Consultation",
+            ctaLink: "/contact"
+          }
+        }
+      },
+      {
+        _id: "b2",
+        blockType: "features_grid",
+        order: 1,
+        layoutStyle: "grid_3_col",
+        content: {
+          features: [
+            { title: "Infinity Edges", description: "Vanishing waters blending into horizons.", iconUrl: "Waves" },
+            { title: "Plunge Pools", description: "Compact designs for relaxing and cooling down.", iconUrl: "Flame" },
+            { title: "Waterproofing", description: "Structural engineering and double-barrier sealing.", iconUrl: "Shield" }
+          ]
+        }
+      },
+      {
+        _id: "b3",
+        blockType: "rich_text_jodit",
+        order: 2,
+        layoutStyle: "container_centered",
+        content: {
+          richTextHtml: "<h2>Our Process</h2><p>Building a pool requires structural precision and elegant aesthetics. Our team manages the process from geotech testing to final tile polishing. We offer double-membrane waterproofing, shotcrete core design, and app-controlled chemical balances.</p>"
+        }
+      },
+      {
+        _id: "b4",
+        blockType: "faq_accordion",
+        order: 3,
+        layoutStyle: "container_centered",
+        content: {
+          accordionItems: [
+            { question: "How long does construction take?", answer: "Usually 10-14 weeks depending on size." },
+            { question: "Do you handle municipality permits?", answer: "Yes, we handle approvals from Nakheel, Dubai Municipality, and Emaar." }
+          ]
+        }
+      }
+    ],
+    seo: {
+      metaTitle: "Custom Swimming Pool Construction Dubai | Aurelia Pools",
+      metaDescription: "We design and engineer bespoke concrete swimming pools, lap pools, plunge pools, and luxury infinity pools for villas.",
+      keywords: ["custom pools", "infinity pool construction", "pool builders dubai"]
+    },
+    updatedAt: "2026-06-28T10:00:00Z"
   },
   {
     id: "svc_2",
     slug: "landscape-design",
     title: "Landscape Design",
-    shortDescription: "Planting plans and hardscaping built for the climate.",
-    description: "Our landscape team designs planting schemes and hardscape layouts suited to arid climates.",
-    heroImage: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=800&auto=format&fit=crop",
-    features: ["Native & climate-adapted planting", "Drip irrigation design", "Hardscaping & pathways"],
-    status: "published",
-    updatedAt: "2026-06-20T10:00:00Z",
+    category: "Landscaping",
+    isPublished: true,
+    featuredImage: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=800&auto=format&fit=crop",
+    sections: [
+      {
+        _id: "b2_1",
+        blockType: "hero_section",
+        order: 0,
+        layoutStyle: "full_width",
+        content: {
+          hero: {
+            headline: "Arid Climate Planting Plans and Hardscaping",
+            subheadline: "Designing premium garden spaces suited to high temperatures.",
+            bgImage: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=800&auto=format&fit=crop",
+            ctaText: "View Portfolio",
+            ctaLink: "/gallery"
+          }
+        }
+      },
+      {
+        _id: "b2_2",
+        blockType: "features_grid",
+        order: 1,
+        layoutStyle: "grid_3_col",
+        content: {
+          features: [
+            { title: "Native Planting", description: "Species adapted to low water conditions.", iconUrl: "Sprout" },
+            { title: "Drip Irrigation", description: "Automated, efficient sub-surface systems.", iconUrl: "Droplets" },
+            { title: "Hardscaping", description: "Paving, pathways, and stone feature walls.", iconUrl: "Hammer" }
+          ]
+        }
+      }
+    ],
+    seo: {
+      metaTitle: "Landscape Design & Luxury Gardening | Aurelia Landscaping",
+      metaDescription: "Professional landscape design for high-end villas. Xeriscaping, water-efficient drip irrigation, pathways and gazebos.",
+      keywords: ["landscape design", "xeriscaping dubai", "villa gardens"]
+    },
+    updatedAt: "2026-06-20T10:00:00Z"
   },
   {
     id: "svc_3",
     slug: "outdoor-lighting",
     title: "Outdoor Lighting",
-    shortDescription: "Layered lighting design for pools, gardens, and facades.",
-    description: "Lighting is where a landscape either comes alive at night or disappears.",
-    heroImage: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop",
-    features: ["Underwater pool lighting", "Garden & pathway lighting", "App-controlled smart scenes"],
-    status: "draft",
-    updatedAt: "2026-07-02T10:00:00Z",
-  },
+    category: "Landscaping",
+    isPublished: false,
+    featuredImage: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop",
+    sections: [
+      {
+        _id: "b3_1",
+        blockType: "hero_section",
+        order: 0,
+        layoutStyle: "full_width",
+        content: {
+          hero: {
+            headline: "Layered Outdoor Illumination Schemes",
+            subheadline: "Creating evening atmospheres for pools, gardens, and facades.",
+            bgImage: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop"
+          }
+        }
+      }
+    ],
+    seo: {
+      metaTitle: "Landscape & Pool Lighting Design | Aurelia Outdoor",
+      metaDescription: "Professional low-voltage outdoor lighting. Accent lighting, underwater pool fixtures, garden pathway illumination."
+    },
+    updatedAt: "2026-07-02T10:00:00Z"
+  }
 ];
 
 export const seedProjects: Project[] = [
