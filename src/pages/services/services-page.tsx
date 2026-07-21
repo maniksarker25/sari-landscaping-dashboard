@@ -7,7 +7,14 @@ import { StatusBadge } from "@/components/common/status-badge";
 import { EmptyState } from "@/components/common/empty-state";
 import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,17 +26,24 @@ import { useServicesStore } from "@/lib/content-stores";
 import { formatDate } from "@/lib/utils";
 import type { Service } from "@/types";
 import { ServiceFormDialog } from "@/pages/services/service-form-dialog";
+import Tiptap from "@/components/common/Tiptap";
 
 export default function ServicesPage() {
   const items = useServicesStore((s) => s.items);
   const remove = useServicesStore((s) => s.remove);
 
   const [search, setSearch] = React.useState("");
-  const [formState, setFormState] = React.useState<{ open: boolean; service?: Service }>({ open: false });
+  const [formState, setFormState] = React.useState<{
+    open: boolean;
+    service?: Service;
+  }>({ open: false });
   const [deleteTarget, setDeleteTarget] = React.useState<Service | null>(null);
 
   const filtered = items.filter((service) =>
-    [service.title, service.shortDescription].join(" ").toLowerCase().includes(search.toLowerCase())
+    [service.title, service.shortDescription]
+      .join(" ")
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   );
 
   function handleDelete(service: Service) {
@@ -49,8 +63,12 @@ export default function ServicesPage() {
         }
       />
 
-      <SearchInput value={search} onChange={setSearch} placeholder="Search services..." className="max-w-sm" />
-
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search services..."
+        className="max-w-sm"
+      />
       {filtered.length === 0 ? (
         <EmptyState
           icon={Wrench}
@@ -80,30 +98,46 @@ export default function ServicesPage() {
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
                         {service.heroImage ? (
-                          <img src={service.heroImage} alt="" className="h-full w-full object-cover" />
+                          <img
+                            src={service.heroImage}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           <ImageOff className="h-full w-full p-2 text-muted-foreground" />
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{service.title}</p>
-                        <p className="truncate text-xs text-muted-foreground">/{service.slug}</p>
+                        <p className="truncate text-sm font-medium">
+                          {service.title}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          /{service.slug}
+                        </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={service.status} />
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{formatDate(service.updatedAt)}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {formatDate(service.updatedAt)}
+                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="Row actions">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Row actions"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setFormState({ open: true, service })}>
+                        <DropdownMenuItem
+                          onClick={() => setFormState({ open: true, service })}
+                        >
                           <Pencil className="h-4 w-4" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem

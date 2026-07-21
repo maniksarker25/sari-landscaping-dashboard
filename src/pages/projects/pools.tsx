@@ -12,16 +12,22 @@ import { useProjectsStore } from "@/lib/content-stores";
 import type { Project } from "@/types";
 import { ProjectFormDialog } from "@/pages/projects/project-form-dialog";
 
-export default function ProjectsPage() {
+export default function PoolsPage() {
   const items = useProjectsStore((s) => s.items);
   const remove = useProjectsStore((s) => s.remove);
 
   const [search, setSearch] = React.useState("");
-  const [formState, setFormState] = React.useState<{ open: boolean; project?: Project }>({ open: false });
+  const [formState, setFormState] = React.useState<{
+    open: boolean;
+    project?: Project;
+  }>({ open: false });
   const [deleteTarget, setDeleteTarget] = React.useState<Project | null>(null);
 
   const filtered = items.filter((project) =>
-    [project.title, project.location, project.category].join(" ").toLowerCase().includes(search.toLowerCase())
+    [project.title, project.location, project.category]
+      .join(" ")
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   );
 
   function handleDelete(project: Project) {
@@ -41,7 +47,12 @@ export default function ProjectsPage() {
         }
       />
 
-      <SearchInput value={search} onChange={setSearch} placeholder="Search projects..." className="max-w-sm" />
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Search projects..."
+        className="max-w-sm"
+      />
 
       {filtered.length === 0 ? (
         <EmptyState
@@ -59,16 +70,23 @@ export default function ProjectsPage() {
           {filtered.map((project) => (
             <Card key={project.id} className="overflow-hidden">
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-                <img src={project.coverImage} alt={project.title} className="h-full w-full object-cover" />
+                <img
+                  src={project.coverImage}
+                  alt={project.title}
+                  className="h-full w-full object-cover"
+                />
                 <div className="absolute right-2 top-2">
                   <StatusBadge status={project.status} />
                 </div>
               </div>
               <CardContent className="p-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-primary">{project.category}</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-primary">
+                  {project.category}
+                </p>
                 <h3 className="mt-1 truncate font-semibold">{project.title}</h3>
                 <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> {project.location} &middot; {project.year}
+                  <MapPin className="h-3 w-3" /> {project.location} &middot;{" "}
+                  {project.year}
                 </p>
                 <div className="mt-4 flex gap-2">
                   <Button

@@ -58,7 +58,12 @@ export interface Testimonial {
   updatedAt: string;
 }
 
-export type FaqCategory = "general" | "pools" | "landscaping" | "maintenance" | "pricing";
+export type FaqCategory =
+  | "general"
+  | "pools"
+  | "landscaping"
+  | "maintenance"
+  | "pricing";
 
 export interface FaqItem {
   id: string;
