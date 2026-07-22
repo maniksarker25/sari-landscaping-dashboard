@@ -517,10 +517,7 @@ export default function ServiceBuilderPage() {
                         return (
                           <div
                             key={field.id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, index)}
                             onDragOver={(e) => handleDragOver(e, index)}
-                            onDragEnd={handleDragEnd}
                             className={`rounded-lg border border-border bg-card shadow-sm transition-all duration-200 ${
                               draggedIndex === index
                                 ? "opacity-40 border-primary"
@@ -530,7 +527,13 @@ export default function ServiceBuilderPage() {
                             {/* Card Header Accordion Trigger */}
                             <div className="flex items-center justify-between px-4 py-3 bg-muted/30 rounded-t-lg select-none">
                               <div className="flex items-center gap-3 min-w-0">
-                                <div className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground pr-1">
+                                <div
+                                  draggable
+                                  onDragStart={(e) => handleDragStart(e, index)}
+                                  onDragEnd={handleDragEnd}
+                                  className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground pr-1 p-1 rounded hover:bg-muted/60 transition-colors"
+                                  title="Drag to reorder section"
+                                >
                                   <GripVertical className="h-4 w-4" />
                                 </div>
                                 <Badge className="text-[10px] uppercase font-bold shrink-0">

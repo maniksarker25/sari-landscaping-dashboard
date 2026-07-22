@@ -27,7 +27,7 @@ export function CategoryPicker({ onSelect, onCancel }: CategoryPickerProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <Card
             onClick={() => onSelect("Pools")}
-            className="group border border-border bg-card hover:border-primary/50 cursor-pointer transition-all duration-300 hover:shadow-lg text-left"
+            className="group border border-border bg-card hover:border-primary/50 cursor-pointer transition-all duration-300  text-left"
           >
             <CardContent className="p-8 flex flex-col items-start gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-300">
@@ -49,7 +49,7 @@ export function CategoryPicker({ onSelect, onCancel }: CategoryPickerProps) {
 
           <Card
             onClick={() => onSelect("Landscaping")}
-            className="group border border-border bg-card hover:border-primary/50 cursor-pointer transition-all duration-300 hover:shadow-lg text-left"
+            className="group border border-border bg-card hover:border-primary/50 cursor-pointer transition-all duration-300  text-left"
           >
             <CardContent className="p-8 flex flex-col items-start gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-300">

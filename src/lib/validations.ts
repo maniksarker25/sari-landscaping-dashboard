@@ -89,7 +89,7 @@ export const serviceFormSchema = z.object({
   slug: z.string().min(3, "Slug must be at least 3 characters.").regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only."),
   category: z.enum(["Pools", "Landscaping"]),
   isPublished: z.boolean().default(false),
-  featuredImage: z.string().url("Enter a valid image URL."),
+  featuredImage: z.string().min(1, "Featured image is required."),
   sections: z.array(pageBlockSchema),
   seo: seoSchema.optional(),
 });

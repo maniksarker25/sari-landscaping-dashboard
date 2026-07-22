@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
 import {
   Bold,
   Italic,
@@ -20,6 +22,8 @@ import {
   Heading5,
   Heading6,
   Pilcrow,
+  Palette,
+  Check,
 } from "lucide-react";
 import {
   Select,
@@ -28,6 +32,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import "./editor.css";
 
 interface TiptapProps {
@@ -36,10 +45,25 @@ interface TiptapProps {
   placeholder?: string;
 }
 
+const PRESET_COLORS = [
+  { name: "Default", value: "" },
+  { name: "Charcoal Black", value: "#1e293b" },
+  { name: "Muted Slate", value: "#64748b" },
+  { name: "Crimson Red", value: "#ef4444" },
+  { name: "Sunset Orange", value: "#f97316" },
+  { name: "Amber Gold", value: "#f59e0b" },
+  { name: "Emerald Green", value: "#10b981" },
+  { name: "Teal Water", value: "#06b6d4" },
+  { name: "Sky Blue", value: "#3b82f6" },
+  { name: "Royal Violet", value: "#8b5cf6" },
+];
+
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
     return null;
   }
+
+  const activeColor = editor.getAttributes("textStyle").color || "";
 
   const getCurrentHeadingValue = () => {
     if (editor.isActive("heading", { level: 1 })) return "h1";
@@ -185,6 +209,87 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
       <div className="editor-toolbar-divider" />
 
+      {/* Color Picker */}
+      <div className="editor-toolbar-group">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              className={`editor-toolbar-btn relative flex flex-col items-center justify-center ${
+                activeColor ? "text-primary bg-primary/5" : ""
+              }`}
+              title="Text Color"
+              aria-label="Text Color"
+            >
+              <Palette className="h-4 w-4" />
+              {activeColor && (
+                <span
+                  className="absolute bottom-1 left-1/2 -translate-x-1/2 w-3.5 h-[3px] rounded-full"
+                  style={{ backgroundColor: activeColor }}
+                />
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-3 space-y-3" align="start">
+            <div className="text-xs font-semibold text-muted-foreground">Text Color</div>
+            
+            {/* Presets Grid */}
+            <div className="grid grid-cols-5 gap-2">
+              {PRESET_COLORS.map((color) => {
+                const isActive = color.value 
+                  ? activeColor === color.value 
+                  : !activeColor;
+                
+                return (
+                  <button
+                    key={color.name}
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      if (color.value) {
+                        editor.chain().focus().setColor(color.value).run();
+                      } else {
+                        editor.chain().focus().unsetColor().run();
+                      }
+                    }}
+                    className="h-7 w-7 rounded-full border border-border relative flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-sm"
+                    style={{ 
+                      backgroundColor: color.value || "var(--background)",
+                      backgroundImage: color.value ? "none" : "linear-gradient(45deg, transparent 45%, #ef4444 45%, #ef4444 55%, transparent 55%)"
+                    }}
+                    title={color.name}
+                  >
+                    {isActive && (
+                      <Check className={`h-3.5 w-3.5 ${color.value === "#f59e0b" || !color.value ? "text-slate-800" : "text-white"}`} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom Color Input */}
+            <div className="flex items-center gap-2 pt-2 border-t border-border">
+              <span className="text-xs font-medium text-muted-foreground flex-grow">
+                Custom Color
+              </span>
+              <div className="relative h-7 w-7 rounded-full overflow-hidden border border-border cursor-pointer shadow-sm">
+                <input
+                  type="color"
+                  value={activeColor && /^#[0-9a-fA-F]{6}$/.test(activeColor) ? activeColor : "#000000"}
+                  onChange={(e) => {
+                    editor.chain().focus().setColor(e.target.value).run();
+                  }}
+                  className="absolute inset-[-4px] h-[36px] w-[36px] p-0 border-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="editor-toolbar-divider" />
+
       {/* Lists */}
       <div className="editor-toolbar-group">
         <button
@@ -245,7 +350,11 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
 export default function Tiptap({ content, setContent }: TiptapProps) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      TextStyle,
+      Color.configure({ types: ["textStyle"] }),
+    ],
     content: content || "",
     onUpdate: ({ editor }) => {
       setContent?.(editor.getHTML());
@@ -259,7 +368,16 @@ export default function Tiptap({ content, setContent }: TiptapProps) {
   }, [content, editor]);
 
   return (
-    <div className="editor-wrapper">
+    <div
+      className="editor-wrapper"
+      onDragStart={(e) => {
+        e.stopPropagation();
+        const target = e.target as HTMLElement;
+        if (!target || target.tagName.toLowerCase() !== "img") {
+          e.preventDefault();
+        }
+      }}
+    >
       <MenuBar editor={editor} />
       <div className="editor-content-area">
         <EditorContent editor={editor} />
