@@ -15,7 +15,7 @@ export const featureItemSchema = z.object({
 });
 
 export const galleryItemSchema = z.object({
-  imageUrl: z.string().url("Enter a valid image URL."),
+  imageUrl: z.string().min(1, "Image is required."),
   caption: z.string().optional(),
   altText: z.string().optional(),
 });
@@ -110,7 +110,7 @@ export const projectFormSchema = z.object({
 export type ProjectFormValues = z.infer<typeof projectFormSchema>;
 
 export const galleryFormSchema = z.object({
-  src: z.string().url("Enter a valid image URL."),
+  src: z.string().min(1, "Image is required."),
   alt: z.string().min(3, "Add descriptive alt text."),
   category: z.enum(["pools", "landscaping", "outdoor-living", "lighting"]),
 });

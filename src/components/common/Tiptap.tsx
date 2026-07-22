@@ -231,7 +231,17 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
               )}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-56 p-3 space-y-3" align="start">
+          <PopoverContent
+            className="w-56 p-3 space-y-3"
+            align="start"
+            onFocusOutside={(e) => e.preventDefault()}
+            onPointerDownOutside={(e) => {
+              const target = e.target as HTMLElement;
+              if (target && (target.closest(".editor-toolbar") || target.tagName.toLowerCase() === "input")) {
+                e.preventDefault();
+              }
+            }}
+          >
             <div className="text-xs font-semibold text-muted-foreground">Text Color</div>
             
             {/* Presets Grid */}
