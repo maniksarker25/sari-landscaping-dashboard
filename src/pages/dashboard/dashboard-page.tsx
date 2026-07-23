@@ -38,11 +38,7 @@ const inquiryTrend = [
 
 const serviceInterest = [
   { service: "Pools", count: 32 },
-  { service: "Landscape", count: 24 },
-  { service: "Lighting", count: 11 },
-  { service: "Outdoor Living", count: 18 },
-  { service: "Renovation", count: 15 },
-  { service: "Maintenance", count: 9 },
+  { service: "Landscape", count: 24 }
 ];
 
 export default function DashboardPage() {
