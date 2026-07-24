@@ -10,6 +10,8 @@ import DashboardPage from "@/pages/dashboard/dashboard-page";
 import FaqsPage from "@/pages/faqs/faqs-page";
 import GalleryPage from "@/pages/gallery/gallery-page";
 import LoginPage from "@/pages/login/login-page";
+import ForgotPasswordPage from "@/pages/auth/forgot-password-page";
+import ResetPasswordPage from "@/pages/auth/reset-password-page";
 import MessagesPage from "@/pages/messages/messages-page";
 import NotFoundPage from "@/pages/not-found-page";
 import ServicesPage from "@/pages/services/services-page";
@@ -24,6 +26,9 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/set-new-password" element={<ResetPasswordPage />} />
 
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
