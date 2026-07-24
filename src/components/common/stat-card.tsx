@@ -17,22 +17,6 @@ export function StatCard({ label, value, icon: Icon, trend }: StatCardProps) {
         <div>
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
-          {trend && (
-            <div
-              className={cn(
-                "mt-2 flex items-center gap-1 text-xs font-medium",
-                trend.direction === "up" ? "text-success" : "text-destructive"
-              )}
-            >
-              {trend.direction === "up" ? (
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              ) : (
-                <ArrowDownRight className="h-3.5 w-3.5" />
-              )}
-              {trend.value}
-              <span className="font-normal text-muted-foreground">vs last month</span>
-            </div>
-          )}
         </div>
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />

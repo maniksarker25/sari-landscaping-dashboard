@@ -81,7 +81,6 @@ export default function DashboardPage() {
           label="Active Services"
           value={String(services.length)}
           icon={Wrench}
-          trend={{ value: "+1", direction: "up" }}
         />
         <StatCard
           label="Published Projects"
@@ -89,19 +88,16 @@ export default function DashboardPage() {
             projects.filter((p) => p.status === "published").length,
           )}
           icon={FolderKanban}
-          trend={{ value: "+2", direction: "up" }}
         />
         <StatCard
           label="New Messages"
           value={String(newMessages.length)}
           icon={Mail}
-          trend={{ value: "+3", direction: "up" }}
         />
         <StatCard
           label="Testimonials"
           value={String(testimonials.length)}
           icon={MessageSquareQuote}
-          trend={{ value: "0", direction: "up" }}
         />
       </div>
 
