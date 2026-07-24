@@ -20,11 +20,21 @@ import {
 } from "recharts";
 import { PageHeader } from "@/components/common/page-header";
 import { StatCard } from "@/components/common/stat-card";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
-import { useServicesStore, useProjectsStore, useBlogStore, useTestimonialsStore } from "@/lib/content-stores";
+import {
+  useServicesStore,
+  useProjectsStore,
+  useTestimonialsStore,
+} from "@/lib/content-stores";
 import { useMessagesStore } from "@/lib/messages-store";
 
 const inquiryTrend = [
@@ -38,20 +48,25 @@ const inquiryTrend = [
 
 const serviceInterest = [
   { service: "Pools", count: 32 },
-  { service: "Landscape", count: 24 }
+  { service: "Landscape", count: 24 },
 ];
 
 export default function DashboardPage() {
   const services = useServicesStore((s) => s.items);
   const projects = useProjectsStore((s) => s.items);
-  const blogPosts = useBlogStore((s) => s.items);
   const testimonials = useTestimonialsStore((s) => s.items);
   const messages = useMessagesStore((s) => s.items);
 
-  const newMessages = useMemo(() => messages.filter((m) => m.status === "new"), [messages]);
+  const newMessages = useMemo(
+    () => messages.filter((m) => m.status === "new"),
+    [messages],
+  );
   const recentMessages = useMemo(
-    () => [...messages].sort((a, b) => +new Date(b.receivedAt) - +new Date(a.receivedAt)).slice(0, 5),
-    [messages]
+    () =>
+      [...messages]
+        .sort((a, b) => +new Date(b.receivedAt) - +new Date(a.receivedAt))
+        .slice(0, 5),
+    [messages],
   );
 
   return (
@@ -62,30 +77,78 @@ export default function DashboardPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active Services" value={String(services.length)} icon={Wrench} trend={{ value: "+1", direction: "up" }} />
-        <StatCard label="Published Projects" value={String(projects.filter((p) => p.status === "published").length)} icon={FolderKanban} trend={{ value: "+2", direction: "up" }} />
-        <StatCard label="New Messages" value={String(newMessages.length)} icon={Mail} trend={{ value: "+3", direction: "up" }} />
-        <StatCard label="Testimonials" value={String(testimonials.length)} icon={MessageSquareQuote} trend={{ value: "0", direction: "up" }} />
+        <StatCard
+          label="Active Services"
+          value={String(services.length)}
+          icon={Wrench}
+          trend={{ value: "+1", direction: "up" }}
+        />
+        <StatCard
+          label="Published Projects"
+          value={String(
+            projects.filter((p) => p.status === "published").length,
+          )}
+          icon={FolderKanban}
+          trend={{ value: "+2", direction: "up" }}
+        />
+        <StatCard
+          label="New Messages"
+          value={String(newMessages.length)}
+          icon={Mail}
+          trend={{ value: "+3", direction: "up" }}
+        />
+        <StatCard
+          label="Testimonials"
+          value={String(testimonials.length)}
+          icon={MessageSquareQuote}
+          trend={{ value: "0", direction: "up" }}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-5">
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Inquiry volume</CardTitle>
-            <CardDescription>Contact form submissions over the last 6 months.</CardDescription>
+            <CardDescription>
+              Contact form submissions over the last 6 months.
+            </CardDescription>
           </CardHeader>
           <CardContent className="h-72 pl-0">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={inquiryTrend} margin={{ left: 8, right: 16 }}>
                 <defs>
-                  <linearGradient id="inquiryGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  <linearGradient
+                    id="inquiryGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0.35}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} width={28} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                  width={28}
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "hsl(var(--popover))",
@@ -94,7 +157,13 @@ export default function DashboardPage() {
                     fontSize: "0.75rem",
                   }}
                 />
-                <Area type="monotone" dataKey="inquiries" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#inquiryGradient)" />
+                <Area
+                  type="monotone"
+                  dataKey="inquiries"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#inquiryGradient)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -103,13 +172,24 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Interest by service</CardTitle>
-            <CardDescription>Which services inquiries mention most.</CardDescription>
+            <CardDescription>
+              Which services inquiries mention most.
+            </CardDescription>
           </CardHeader>
           <CardContent className="h-72 pl-0">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={serviceInterest} layout="vertical" margin={{ left: 8, right: 16 }}>
+              <BarChart
+                data={serviceInterest}
+                layout="vertical"
+                margin={{ left: 8, right: 16 }}
+              >
                 <CartesianGrid horizontal={false} stroke="hsl(var(--border))" />
-                <XAxis type="number" tickLine={false} axisLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <XAxis
+                  type="number"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                />
                 <YAxis
                   dataKey="service"
                   type="category"
@@ -127,7 +207,12 @@ export default function DashboardPage() {
                   }}
                   cursor={{ fill: "hsl(var(--muted))" }}
                 />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={16} />
+                <Bar
+                  dataKey="count"
+                  fill="hsl(var(--primary))"
+                  radius={[0, 4, 4, 0]}
+                  barSize={16}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -138,7 +223,9 @@ export default function DashboardPage() {
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div>
             <CardTitle>Recent messages</CardTitle>
-            <CardDescription>The latest contact form submissions.</CardDescription>
+            <CardDescription>
+              The latest contact form submissions.
+            </CardDescription>
           </div>
           <Button asChild variant="outline" size="sm">
             <Link to="/messages">
@@ -155,58 +242,24 @@ export default function DashboardPage() {
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{message.name}</p>
-                <p className="truncate text-xs text-muted-foreground">{message.message}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {message.message}
+                </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <span className="hidden text-xs text-muted-foreground sm:inline">
                   {formatDateTime(message.receivedAt)}
                 </span>
-                <Badge variant={message.status === "new" ? "warning" : "outline"}>{message.status}</Badge>
+                <Badge
+                  variant={message.status === "new" ? "warning" : "outline"}
+                >
+                  {message.status}
+                </Badge>
               </div>
             </Link>
           ))}
         </CardContent>
       </Card>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Content ready to review</CardTitle>
-            <CardDescription>Drafts waiting to be published.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {[...services.filter((s) => !s.isPublished), ...blogPosts.filter((p) => p.status === "draft")]
-              .slice(0, 4)
-              .map((item) => (
-                <div key={item.id} className="flex items-center justify-between rounded-md px-2 py-2 text-sm hover:bg-muted/50">
-                  <span className="truncate">{item.title}</span>
-                  <Badge variant="outline">Draft</Badge>
-                </div>
-              ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick actions</CardTitle>
-            <CardDescription>Jump straight into common tasks.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-2">
-            <Button asChild variant="outline" className="justify-start">
-              <Link to="/projects">Add a project</Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start">
-              <Link to="/blog">Write a blog post</Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start">
-              <Link to="/gallery">Upload photos</Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start">
-              <Link to="/settings">Edit site settings</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

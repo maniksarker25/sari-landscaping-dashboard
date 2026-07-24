@@ -112,7 +112,7 @@ export type ProjectFormValues = z.infer<typeof projectFormSchema>;
 export const galleryFormSchema = z.object({
   src: z.string().min(1, "Image is required."),
   alt: z.string().min(3, "Add descriptive alt text."),
-  category: z.enum(["pools", "landscaping", "outdoor-living", "lighting"]),
+  category: z.enum(["pools", "landscaping"]),
 });
 export type GalleryFormValues = z.infer<typeof galleryFormSchema>;
 
@@ -154,3 +154,15 @@ export const settingsFormSchema = z.object({
   address: z.string().min(5, "Enter an address."),
 });
 export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required."),
+    newPassword: z.string().min(6, "New password must be at least 6 characters."),
+    confirmPassword: z.string().min(1, "Please confirm your new password."),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "New passwords do not match.",
+    path: ["confirmPassword"],
+  });
+export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;

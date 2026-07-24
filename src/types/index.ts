@@ -117,7 +117,7 @@ export interface GalleryImage {
   id: string;
   src: string;
   alt: string;
-  category: "pools" | "landscaping" | "outdoor-living" | "lighting";
+  category: "pools" | "landscaping";
   updatedAt: string;
 }
 
