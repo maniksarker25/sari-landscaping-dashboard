@@ -15,8 +15,6 @@ import FaqsPage from "@/pages/faqs/faqs-page";
 import MessagesPage from "@/pages/messages/messages-page";
 import SettingsPage from "@/pages/settings/settings-page";
 import NotFoundPage from "@/pages/not-found-page";
-import Landscaping from "./pages/projects/landscaping";
-import PoolsPage from "@/pages/projects/pools";
 import ServiceBuilderPage from "./pages/services/service-builder-page";
 
 export default function App() {
@@ -36,8 +34,6 @@ export default function App() {
                   path="/services/edit/:id"
                   element={<ServiceBuilderPage />}
                 />
-                <Route path="/landscaping" element={<Landscaping />} />
-                <Route path="/pools" element={<PoolsPage />} />
                 <Route path="/gallery" element={<GalleryPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/testimonials" element={<TestimonialsPage />} />

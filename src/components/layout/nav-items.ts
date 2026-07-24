@@ -9,7 +9,7 @@ import {
   Mail,
   Settings,
   Waves,
-  TreePalm
+  TreePalm,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,8 +22,6 @@ export interface NavItem {
 export const navItems: NavItem[] = [
   { label: "Overview", href: "/", icon: LayoutDashboard },
   { label: "Services", href: "/services", icon: Wrench },
-  { label: "Landscaping", href: "/landscaping", icon: TreePalm },
-  { label: "Pools", href: "/pools", icon: Waves },
   { label: "Gallery", href: "/gallery", icon: Image },
   // { label: "Blog", href: "/blog", icon: Newspaper },
   { label: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
