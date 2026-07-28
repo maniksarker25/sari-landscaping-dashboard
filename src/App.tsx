@@ -2,9 +2,6 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { ProtectedRoute } from "@/components/layout/protected-route";
 import { ThemeInitializer } from "@/components/layout/theme-initializer";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster } from "sonner";
-// need to reply
 import BlogPage from "@/pages/blog/blog-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import FaqsPage from "@/pages/faqs/faqs-page";
@@ -15,6 +12,8 @@ import NotFoundPage from "@/pages/not-found-page";
 import ServicesPage from "@/pages/services/services-page";
 import SettingsPage from "@/pages/settings/settings-page";
 import TestimonialsPage from "@/pages/testimonials/testimonials-page";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
 import ServiceBuilderPage from "./pages/services/service-builder-page";
 
 export default function App() {
