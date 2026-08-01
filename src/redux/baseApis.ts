@@ -4,7 +4,8 @@ import { RootState } from "./store";
 const baseApis = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://10.10.20.9:9050/api/v1",
+    baseUrl:
+      import.meta.env.VITE_API_BASE_URL || "http://192.168.0.114:5000/api/v1",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.accessToken;
       if (token) {
@@ -13,27 +14,7 @@ const baseApis = createApi({
       return headers;
     },
   }),
-  tagTypes: [
-    "PropertyManager",
-    "ContentManager",
-    "SupportManager",
-    "Admin",
-    "Client",
-    "LifeStyle",
-    "Legal",
-    "ManageMarket",
-    "ManageProject",
-    "user",
-    "Properties",
-    "AllProperties",
-    "AdminStats",
-    "ContentStats",
-    "PropertyManagerStats",
-    "SupportManagerStats",
-    "ManageWeb",
-    "paymentProperty",
-    "LegalAndCompany",
-  ],
+  tagTypes: ["user"],
   endpoints: () => ({}),
 });
 

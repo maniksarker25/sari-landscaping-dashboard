@@ -12,20 +12,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "@/components/layout/sidebar";
-import { useAuthStore } from "@/lib/auth-store";
 import { useThemeStore } from "@/lib/theme-store";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { logout as reduxLogout } from "@/redux/services/authSlice";
 
 export function Topbar() {
   const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
   const mode = useThemeStore((s) => s.mode);
   const toggleMode = useThemeStore((s) => s.toggleMode);
 
   function handleLogout() {
-    logout();
+    dispatch(reduxLogout());
     navigate("/login", { replace: true });
   }
+
+  const avatarInitials =
+    user?.avatarInitials ||
+    (user?.name
+      ? user.name
+          .split(" ")
+          .map((n: string) => n[0])
+          .join("")
+          .toUpperCase()
+      : user?.email
+      ? user.email[0].toUpperCase()
+      : "AD");
 
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6">
@@ -59,14 +72,14 @@ export function Topbar() {
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-muted" aria-label="Account menu">
               <Avatar className="h-8 w-8">
-                <AvatarFallback>{user?.avatarInitials ?? "AD"}</AvatarFallback>
+                <AvatarFallback>{avatarInitials}</AvatarFallback>
               </Avatar>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
-              <p className="font-medium">{user?.name}</p>
-              <p className="text-xs font-normal text-muted-foreground">{user?.email}</p>
+              <p className="font-medium">{user?.name || user?.email || "Admin User"}</p>
+              {user?.email && <p className="text-xs font-normal text-muted-foreground">{user.email}</p>}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate("/settings")}>

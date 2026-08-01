@@ -10,6 +10,7 @@ import { useServicesFilter } from "@/components/services/use-services-filter";
 import { ServicesCategoryTabs } from "@/components/services/services-category-tabs";
 import { ServicesTable } from "@/components/services/services-table";
 import { ServiceViewDialog } from "@/components/services/service-view-dialog";
+import { useServicesQuery } from "@/redux/services/serviceApis";
 
 export default function ServicesPage() {
   const navigate = useNavigate();
@@ -26,7 +27,11 @@ export default function ServicesPage() {
     filtered,
     handleDelete,
   } = useServicesFilter();
-
+  const { data, isLoading } = useServicesQuery({});
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  console.log(data?.data);
   return (
     <div className="space-y-6">
       <PageHeader
