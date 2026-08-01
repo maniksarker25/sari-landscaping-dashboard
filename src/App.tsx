@@ -29,13 +29,15 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/set-new-password" element={<ResetPasswordPage />} />
-
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/services/new" element={<ServiceBuilderPage />} />
-                <Route path="/services/edit/:id" element={<ServiceBuilderPage />} />
+                <Route
+                  path="/services/edit/:id"
+                  element={<ServiceBuilderPage />}
+                />
                 <Route path="/gallery" element={<GalleryPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/testimonials" element={<TestimonialsPage />} />
