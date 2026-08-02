@@ -15,9 +15,11 @@ export const featureItemSchema = z.object({
 });
 
 export const galleryItemSchema = z.object({
-  imageUrl: z.string().min(1, "Image is required."),
+  uploadKey: z.string().optional(),
+  imageUrl: z.string().optional(),
   caption: z.string().optional(),
   altText: z.string().optional(),
+  file: z.any().optional(),
 });
 
 export const accordionItemSchema = z.object({
@@ -49,7 +51,6 @@ export const blockContentSchema = z.object({
 });
 
 export const pageBlockSchema = z.object({
-  _id: z.string(),
   blockType: z.enum([
     "hero_section",
     "rich_text_jodit",
@@ -61,18 +62,20 @@ export const pageBlockSchema = z.object({
     "contact_form",
   ]),
   order: z.number().default(0),
-  layoutStyle: z.enum([
-    "grid_2_col",
-    "grid_3_col",
-    "grid_4_col",
-    "grid_6_col",
-    "default",
-    "full_width",
-    "container_centered",
-    "two_column_split",
-    "card_grid",
-    "accent_bg",
-  ]).default("grid_3_col"),
+  layoutStyle: z
+    .enum([
+      "grid_2_col",
+      "grid_3_col",
+      "grid_4_col",
+      "grid_6_col",
+      "default",
+      "full_width",
+      "container_centered",
+      "two_column_split",
+      "card_grid",
+      "accent_bg",
+    ])
+    .default("grid_3_col"),
   content: blockContentSchema,
 });
 
@@ -86,10 +89,14 @@ export const seoSchema = z.object({
 
 export const serviceFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
-  slug: z.string().min(3, "Slug must be at least 3 characters.").regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only."),
+  slug: z
+    .string()
+    .min(3, "Slug must be at least 3 characters.")
+    .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only."),
   category: z.enum(["Pools", "Landscaping"]),
   isPublished: z.boolean().default(false),
-  featuredImage: z.string().min(1, "Featured image is required."),
+  featuredImage: z.string().optional(),
+  featuredImageFile: z.any().optional(),
   sections: z.array(pageBlockSchema),
   seo: seoSchema.optional(),
 });
@@ -98,7 +105,10 @@ export type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
 export const projectFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
-  slug: z.string().min(3, "Slug must be at least 3 characters.").regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only."),
+  slug: z
+    .string()
+    .min(3, "Slug must be at least 3 characters.")
+    .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only."),
   category: z.string().min(2, "Enter a category."),
   location: z.string().min(2, "Enter a location."),
   year: z.string().regex(/^\d{4}$/, "Enter a 4-digit year."),
@@ -118,7 +128,10 @@ export type GalleryFormValues = z.infer<typeof galleryFormSchema>;
 
 export const blogFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
-  slug: z.string().min(3, "Slug must be at least 3 characters.").regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only."),
+  slug: z
+    .string()
+    .min(3, "Slug must be at least 3 characters.")
+    .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only."),
   excerpt: z.string().min(10, "Add an excerpt (10+ characters)."),
   content: z.string().min(20, "Add post content (20+ characters)."),
   coverImage: z.string().url("Enter a valid image URL."),
@@ -140,7 +153,13 @@ export type TestimonialFormValues = z.infer<typeof testimonialFormSchema>;
 export const faqFormSchema = z.object({
   question: z.string().min(5, "Enter a question."),
   answer: z.string().min(10, "Enter an answer (10+ characters)."),
-  category: z.enum(["general", "pools", "landscaping", "maintenance", "pricing"]),
+  category: z.enum([
+    "general",
+    "pools",
+    "landscaping",
+    "maintenance",
+    "pricing",
+  ]),
   status: z.enum(["published", "draft"]),
 });
 export type FaqFormValues = z.infer<typeof faqFormSchema>;
@@ -158,7 +177,9 @@ export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required."),
-    newPassword: z.string().min(6, "New password must be at least 6 characters."),
+    newPassword: z
+      .string()
+      .min(6, "New password must be at least 6 characters."),
     confirmPassword: z.string().min(1, "Please confirm your new password."),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

@@ -78,7 +78,9 @@ export function ServiceViewDialog({
         <DialogHeader>
           <div className="flex items-center justify-between gap-4 pr-6">
             <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-xs font-semibold ${categoryColor}`}>
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-xs font-semibold ${categoryColor}`}
+              >
                 {service.category === "Pools" ? (
                   <Waves className="h-3.5 w-3.5" />
                 ) : (
@@ -86,7 +88,9 @@ export function ServiceViewDialog({
                 )}
                 {service.category}
               </span>
-              <StatusBadge status={service.isPublished ? "published" : "draft"} />
+              <StatusBadge
+                status={service.isPublished ? "published" : "draft"}
+              />
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold mt-2">
@@ -97,7 +101,10 @@ export function ServiceViewDialog({
             <span>/{service.slug}</span>
             <span>•</span>
             <Calendar className="h-3.5 w-3.5 shrink-0" />
-            <span>Updated {formatDate(service.updatedAt)}</span>
+            <span>
+              Updated{" "}
+              {service.updatedAt ? formatDate(service.updatedAt) : "N/A"}
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -121,15 +128,23 @@ export function ServiceViewDialog({
           {/* Quick Metrics */}
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-lg border border-border bg-muted/40 p-3 text-center">
-              <span className="text-xs text-muted-foreground block">Category</span>
+              <span className="text-xs text-muted-foreground block">
+                Category
+              </span>
               <span className="text-sm font-semibold">{service.category}</span>
             </div>
             <div className="rounded-lg border border-border bg-muted/40 p-3 text-center">
-              <span className="text-xs text-muted-foreground block">Content Blocks</span>
-              <span className="text-sm font-semibold">{service.sections?.length || 0} Blocks</span>
+              <span className="text-xs text-muted-foreground block">
+                Content Blocks
+              </span>
+              <span className="text-sm font-semibold">
+                {service.sections?.length || 0} Blocks
+              </span>
             </div>
             <div className="rounded-lg border border-border bg-muted/40 p-3 text-center">
-              <span className="text-xs text-muted-foreground block">Status</span>
+              <span className="text-xs text-muted-foreground block">
+                Status
+              </span>
               <span className="text-sm font-semibold capitalize">
                 {service.isPublished ? "Live / Published" : "Draft"}
               </span>
@@ -147,12 +162,14 @@ export function ServiceViewDialog({
               </h4>
             </div>
             {!service.sections || service.sections.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic">No blocks configured yet.</p>
+              <p className="text-xs text-muted-foreground italic">
+                No blocks configured yet.
+              </p>
             ) : (
               <div className="space-y-2">
                 {service.sections.map((block, idx) => (
                   <div
-                    key={block._id || idx}
+                    key={idx}
                     className="flex items-center justify-between rounded-md border border-border p-3 text-xs bg-card"
                   >
                     <div className="flex items-center gap-3">
@@ -188,21 +205,35 @@ export function ServiceViewDialog({
                 </h4>
                 <div className="rounded-md border border-border bg-muted/30 p-3.5 space-y-2 text-xs">
                   <div>
-                    <span className="font-medium text-muted-foreground block">Meta Title:</span>
-                    <span className="text-foreground">{service.seo.metaTitle || service.title}</span>
+                    <span className="font-medium text-muted-foreground block">
+                      Meta Title:
+                    </span>
+                    <span className="text-foreground">
+                      {service.seo.metaTitle || service.title}
+                    </span>
                   </div>
                   {service.seo.metaDescription && (
                     <div>
-                      <span className="font-medium text-muted-foreground block">Meta Description:</span>
-                      <span className="text-foreground">{service.seo.metaDescription}</span>
+                      <span className="font-medium text-muted-foreground block">
+                        Meta Description:
+                      </span>
+                      <span className="text-foreground">
+                        {service.seo.metaDescription}
+                      </span>
                     </div>
                   )}
                   {service.seo.keywords && service.seo.keywords.length > 0 && (
                     <div>
-                      <span className="font-medium text-muted-foreground block mb-1">Keywords:</span>
+                      <span className="font-medium text-muted-foreground block mb-1">
+                        Keywords:
+                      </span>
                       <div className="flex flex-wrap gap-1">
                         {service.seo.keywords.map((kw, i) => (
-                          <Badge key={i} variant="secondary" className="text-[10px]">
+                          <Badge
+                            key={i}
+                            variant="secondary"
+                            className="text-[10px]"
+                          >
                             {kw}
                           </Badge>
                         ))}

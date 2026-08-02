@@ -24,6 +24,7 @@ import {
   ChevronUp,
   GripVertical,
   Info,
+  Code2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 import { CategoryPicker } from "@/components/services/builder/category-picker";
 import { SeoPanel } from "@/components/services/builder/seo-panel";
@@ -59,26 +66,41 @@ import { serviceFormSchema, type ServiceFormValues } from "@/lib/validations";
 import { useServicesStore } from "@/lib/content-stores";
 import { slugify, generateId } from "@/lib/utils";
 import type { Service, PageBlock, BlockType, LayoutStyle } from "@/types";
+import {
+  useGetSingleServiceQuery,
+  useCreateDraftServiceMutation,
+  useCreatePublishedServiceMutation,
+  useUpdateServiceMutation,
+} from "@/redux/services/serviceApis";
+import { buildServiceFormData } from "@/lib/service-payload-builder";
 
 export default function ServiceBuilderPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const items = useServicesStore((s) => s.items);
-  const add = useServicesStore((s) => s.add);
-  const update = useServicesStore((s) => s.update);
-
   const isEditing = !!id;
-  const service = React.useMemo(
-    () => items.find((item) => item.id === id),
-    [items, id],
-  );
+  const { data: singleServiceResponse, isLoading: isLoadingSingle } =
+    useGetSingleServiceQuery(id!, { skip: !isEditing });
 
-  const [mobileTab, setMobileTab] = React.useState<"editor" | "preview">(
-    "editor",
+  const [createDraftService, { isLoading: isCreatingDraft }] =
+    useCreateDraftServiceMutation();
+  const [createPublishedService, { isLoading: isCreatingPublished }] =
+    useCreatePublishedServiceMutation();
+  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
+
+  const isSubmittingApi = isCreatingDraft || isCreatingPublished || isUpdating;
+
+  // Fallback to local store item if offline or single query pending
+  const localItems = useServicesStore((s) => s.items);
+  const localService = React.useMemo(
+    () => localItems.find((item) => item.id === id || item._id === id),
+    [localItems, id],
   );
+  const fetchedService = singleServiceResponse?.data || localService;
+
+  const [previewModalOpen, setPreviewModalOpen] = React.useState(false);
   const [generalSettingsOpen, setGeneralSettingsOpen] = React.useState(true);
-  const [expandedSections, setExpandedSections] = React.useState<
+  const [collapsedSections, setCollapsedSections] = React.useState<
     Record<string, boolean>
   >({});
 
@@ -109,7 +131,7 @@ export default function ServiceBuilderPage() {
     setValue,
     reset,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = methods;
 
   // useFieldArray for dynamic sections
@@ -128,33 +150,25 @@ export default function ServiceBuilderPage() {
   // Load existing service values in edit mode
   React.useEffect(() => {
     if (isEditing) {
-      if (service) {
+      if (fetchedService) {
         reset({
-          title: service.title,
-          slug: service.slug,
-          category: service.category,
-          isPublished: service.isPublished,
-          featuredImage: service.featuredImage,
-          sections: service.sections,
-          seo: service.seo || {
+          title: fetchedService.title,
+          slug: fetchedService.slug,
+          category: fetchedService.category,
+          isPublished: fetchedService.isPublished,
+          featuredImage: fetchedService.featuredImage || "",
+          sections: fetchedService.sections || [],
+          seo: fetchedService.seo || {
             metaTitle: "",
             metaDescription: "",
             keywords: [],
             canonicalUrl: "",
-            ogImage: "",
+            ogImage: "asd",
           },
         });
-
-        // Expand first section by default
-        if (service.sections && service.sections[0]) {
-          setExpandedSections({ [service.sections[0]._id]: true });
-        }
-      } else {
-        toast.error("Service not found");
-        navigate("/services");
       }
     }
-  }, [isEditing, service, reset, navigate]);
+  }, [isEditing, fetchedService, reset]);
 
   // Handle title change slug generation
   const handleTitleBlur = () => {
@@ -184,12 +198,12 @@ export default function ServiceBuilderPage() {
   };
 
   // Sections toggle collapse
-  const toggleSectionExpand = (sectionId: string) => {
-    setExpandedSections((prev) => ({
+  const toggleSectionExpand = React.useCallback((sectionId: string) => {
+    setCollapsedSections((prev) => ({
       ...prev,
       [sectionId]: !prev[sectionId],
     }));
-  };
+  }, []);
 
   // Block Content initial state factories
   const createDefaultBlockContent = (type: BlockType) => {
@@ -197,38 +211,24 @@ export default function ServiceBuilderPage() {
       case "hero_section":
         return {
           hero: {
-            headline: "Headline goes here",
-            subheadline: "Subheadline describing details goes here",
-            bgImage:
-              "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800",
+            headline: "",
+            subheadline: "",
+            bgImage: "",
             ctaText: "Get Free Quote",
             ctaLink: "/contact-us",
           },
         };
       case "rich_text_jodit":
         return {
-          richTextHtml: "<p>Write rich description contents...</p>",
+          richTextHtml: "<p></p>",
         };
       case "features_grid":
         return {
-          features: [
-            {
-              title: "Example Feature Title",
-              description: "Example description...",
-              iconUrl: "Waves",
-            },
-          ],
+          features: [],
         };
       case "gallery_grid":
         return {
-          gallery: [
-            {
-              imageUrl:
-                "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=800",
-              caption: "Gallery Image",
-              altText: "Gallery Image",
-            },
-          ],
+          gallery: [],
         };
       case "faq_accordion":
         return {
@@ -258,9 +258,7 @@ export default function ServiceBuilderPage() {
   };
 
   const handleAddSection = (type: BlockType) => {
-    const _id = generateId("blk");
     const newSection: PageBlock = {
-      _id,
       blockType: type,
       order: sections.length,
       layoutStyle: "default",
@@ -268,42 +266,189 @@ export default function ServiceBuilderPage() {
     };
 
     append(newSection);
-    setExpandedSections((prev) => ({
-      ...prev,
-      [_id]: true,
-    }));
     toast.success(`Added ${type.replace("_", " ")} section.`);
   };
 
-  const handleFormSubmit = async (values: ServiceFormValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+  const handleRemoveSection = React.useCallback(
+    (index: number) => {
+      remove(index);
+      toast.error("Removed page section.");
+    },
+    [remove],
+  );
+
+  const handleLayoutStyleChange = React.useCallback(
+    (index: number, style: LayoutStyle) => {
+      setValue(`sections.${index}.layoutStyle`, style);
+    },
+    [setValue],
+  );
+
+  // Deferred sections for smooth, non-blocking background compiler rendering
+  const deferredSections = React.useDeferredValue(sections);
+
+  // Inspector modal state
+  const [inspectModalOpen, setInspectModalOpen] = React.useState(false);
+  const [inspectData, setInspectData] = React.useState<{
+    endpoint: string;
+    dataJson: string;
+    serviceImageInfo: string;
+    galleryMapJson: string;
+    galleryFilesCount: number;
+    galleryFileNames: string[];
+  } | null>(null);
+
+  const handleOpenInspectPayload = () => {
+    const values = methods.getValues();
+    const formData = buildServiceFormData(values, { isUpdate: isEditing });
+
+    const endpoint = isEditing
+      ? `PATCH /service/update/${id || fetchedService?._id || fetchedService?.id || ":id"}`
+      : values.isPublished
+        ? "POST /service/create-published"
+        : "POST /service/create-draft";
+
+    const dataStr = (formData.get("data") as string) || "{}";
+    let prettyDataJson = dataStr;
+    try {
+      prettyDataJson = JSON.stringify(JSON.parse(dataStr), null, 2);
+    } catch (e) {}
+
+    const serviceImgFile = formData.get("service_image");
+    const serviceImgInfo =
+      serviceImgFile && serviceImgFile instanceof File
+        ? `File: ${serviceImgFile.name} (${(serviceImgFile.size / 1024).toFixed(1)} KB)`
+        : values.featuredImage
+          ? `URL: ${values.featuredImage}`
+          : "None";
+
+    const mapStr = (formData.get("galleryImageMap") as string) || "[]";
+    let prettyMapJson = mapStr;
+    try {
+      prettyMapJson = JSON.stringify(JSON.parse(mapStr), null, 2);
+    } catch (e) {}
+
+    const galleryFiles = formData.getAll("gallery_images") as File[];
+    const galleryFileNames = galleryFiles.map(
+      (f, idx) =>
+        `[fileIndex ${idx}]: ${f.name} (${(f.size / 1024).toFixed(1)} KB)`,
+    );
+
+    setInspectData({
+      endpoint,
+      dataJson: prettyDataJson,
+      serviceImageInfo: serviceImgInfo,
+      galleryMapJson: prettyMapJson,
+      galleryFilesCount: galleryFiles.length,
+      galleryFileNames,
+    });
+    setInspectModalOpen(true);
+  };
+
+  const handleSaveService = async (asPublished: boolean) => {
+    const isValid = await methods.trigger();
+    if (!isValid) {
+      toast.error("Please resolve form validation errors before saving.");
+      return;
+    }
+
+    const values = methods.getValues();
+    values.isPublished = asPublished;
 
     // Normalize order keys
-    const sortedSections = values.sections.map((sec, index) => ({
+    values.sections = (values.sections || []).map((sec, idx) => ({
       ...sec,
-      order: index,
+      order: idx + 1,
     }));
 
-    const finalValues = {
-      ...values,
-      sections: sortedSections,
-    };
+    // Build FormData matching backend spec
+    const formData = buildServiceFormData(values, { isUpdate: isEditing });
 
-    if (isEditing && service) {
-      update(service.id, {
-        ...finalValues,
-        updatedAt: new Date().toISOString(),
-      });
-      toast.success("Service updated successfully.");
-    } else {
-      add({
-        id: generateId("svc"),
-        ...finalValues,
-        updatedAt: new Date().toISOString(),
-      });
-      toast.success("Service created successfully.");
+    const endpoint = isEditing
+      ? `PATCH /service/update/${id || fetchedService?._id || fetchedService?.id || ""}`
+      : asPublished
+        ? "POST /service/create-published"
+        : "POST /service/create-draft";
+
+    // Format & output clear developer payload in browser dev console
+    console.group(
+      "%c🚀 SUBMITTING MULTIPART SERVICE FORM DATA PAYLOAD",
+      "color: #06b6d4; font-size: 13px; font-weight: bold;",
+    );
+    console.log("📍 Target Endpoint:", endpoint);
+
+    try {
+      const rawDataStr = formData.get("data") as string;
+      console.log("📄 Key 'data' (Parsed Object):", JSON.parse(rawDataStr));
+      console.log("📄 Key 'data' (Raw JSON String):", rawDataStr);
+    } catch (err) {
+      console.log("📄 Key 'data':", formData.get("data"));
     }
-    navigate("/services");
+
+    if (formData.has("service_image")) {
+      console.log(
+        "🖼️ Key 'service_image' (File):",
+        formData.get("service_image"),
+      );
+    } else {
+      console.log(
+        "🖼️ Key 'service_image': None (keeping existing URL or default)",
+      );
+    }
+
+    if (formData.has("galleryImageMap")) {
+      try {
+        const mapStr = formData.get("galleryImageMap") as string;
+        console.log(
+          "🗺️ Key 'galleryImageMap' (Parsed Array):",
+          JSON.parse(mapStr),
+        );
+        console.log("🗺️ Key 'galleryImageMap' (Raw JSON):", mapStr);
+      } catch (err) {
+        console.log(
+          "🗺️ Key 'galleryImageMap':",
+          formData.get("galleryImageMap"),
+        );
+      }
+    } else {
+      console.log("🗺️ Key 'galleryImageMap': None");
+    }
+
+    const galleryFiles = formData.getAll("gallery_images");
+    if (galleryFiles.length > 0) {
+      console.log("📁 Key 'gallery_images' (Files Array):", galleryFiles);
+    } else {
+      console.log("📁 Key 'gallery_images': None");
+    }
+
+    console.groupEnd();
+
+    try {
+      if (isEditing) {
+        const targetId = id || fetchedService?._id || fetchedService?.id || "";
+        await updateService({ id: targetId, formData }).unwrap();
+        toast.success(`Service "${values.title}" updated successfully.`);
+      } else {
+        if (asPublished) {
+          await createPublishedService(formData).unwrap();
+          toast.success(
+            `Published service "${values.title}" successfully! Check console (F12) for payload.`,
+          );
+        } else {
+          await createDraftService(formData).unwrap();
+          toast.success(
+            `Saved service "${values.title}" as draft. Check console (F12) for payload.`,
+          );
+        }
+      }
+      navigate("/services");
+    } catch (error: any) {
+      console.error("Save service error:", error);
+      toast.error(
+        error?.data?.message ||
+          "Failed to save service. Check backend connection.",
+      );
+    }
   };
 
   // CATEGORY PICKER SCREEN (only when adding a new service and category isn't set yet)
@@ -352,417 +497,515 @@ export default function ServiceBuilderPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 border border-border rounded-md px-3 py-1.5 bg-card text-xs">
-              <span className="font-medium text-muted-foreground">
-                Published:
-              </span>
-              <Switch
-                checked={isPublished}
-                onCheckedChange={(val) => setValue("isPublished", val)}
-              />
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPreviewModalOpen(true)}
+              title="Open Page Live Web Preview Modal"
+              className="h-9 gap-1.5 px-3.5 text-xs font-semibold border-primary/40 text-primary hover:bg-primary/5"
+            >
+              <Eye className="h-4 w-4" /> Live Preview
+            </Button>
 
             <Button
-              onClick={handleSubmit(handleFormSubmit)}
-              disabled={isSubmitting}
-              className="h-9 gap-1.5 px-4 text-xs font-semibold"
+              type="button"
+              variant="outline"
+              onClick={handleOpenInspectPayload}
+              title="Inspect FormData Payload JSON and Files"
+              className="h-9 gap-1.5 px-3 text-xs font-semibold border-primary/30 text-primary hover:bg-primary/5"
             >
-              {isSubmitting ? (
+              <Code2 className="h-4 w-4" /> Inspect Payload
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleSaveService(false)}
+              disabled={isSubmittingApi}
+              className="h-9 gap-1.5 px-3.5 text-xs font-semibold"
+            >
+              {isCreatingDraft ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Save className="h-4 w-4" />
               )}
-              Save Service
+              Save Draft
+            </Button>
+
+            <Button
+              type="button"
+              onClick={() => handleSaveService(true)}
+              disabled={isSubmittingApi}
+              className="h-9 gap-1.5 px-4 text-xs font-semibold"
+            >
+              {isCreatingPublished || isUpdating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              {isEditing ? "Update Service" : "Publish Service"}
             </Button>
           </div>
         </div>
 
-        {/* Workspace content splitting */}
-        <div className="min-h-0 flex-1">
-          {/* Mobile layout tabs toggler */}
-          <div className="block lg:hidden mb-4">
-            <Tabs
-              value={mobileTab}
-              onValueChange={(v) => setMobileTab(v as "editor" | "preview")}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="editor" className="gap-1.5">
-                  <FileText className="h-4 w-4" /> Editor Workspace
-                </TabsTrigger>
-                <TabsTrigger value="preview" className="gap-1.5">
-                  <Eye className="h-4 w-4" /> Real-time Page
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-
-          <div className="grid h-full grid-cols-1 gap-6 overflow-hidden lg:grid-cols-12">
-            {/* Editor workspace pane (Left) */}
-            <div
-              className={`scrollbar-thin h-full overflow-y-auto pr-2 lg:col-span-7 lg:block ${
-                mobileTab === "editor" ? "block" : "hidden"
-              }`}
-            >
-              <div className="space-y-6 pb-24">
-                {/* 1. General page info (Collapsible) */}
-                <Card className="border border-border bg-card">
-                  <div
-                    onClick={() => setGeneralSettingsOpen(!generalSettingsOpen)}
-                    className="flex items-center justify-between p-5 border-b border-border cursor-pointer hover:bg-muted/10 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Layers className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold tracking-tight text-foreground">
-                        General Page Info
-                      </span>
-                    </div>
-                    {generalSettingsOpen ? (
-                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-
-                  {generalSettingsOpen && (
-                    <CardContent className="space-y-4 pt-5 pb-5">
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-1.5">
-                          <Label
-                            htmlFor="title"
-                            className="text-xs font-semibold text-muted-foreground"
-                          >
-                            Service Title{" "}
-                            <span className="text-destructive">*</span>
-                          </Label>
-                          <Input
-                            id="title"
-                            placeholder="e.g. Infinity Pools Construction"
-                            {...register("title")}
-                            onBlur={handleTitleBlur}
-                            className="h-10 text-sm"
-                          />
-                          {errors.title && (
-                            <p className="text-xs text-destructive">
-                              {errors.title.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <Label
-                            htmlFor="slug"
-                            className="text-xs font-semibold text-muted-foreground"
-                          >
-                            URL Slug <span className="text-destructive">*</span>
-                          </Label>
-                          <Input
-                            id="slug"
-                            placeholder="infinity-pools-construction"
-                            {...register("slug")}
-                            className="h-10 text-sm"
-                          />
-                          {errors.slug && (
-                            <p className="text-xs text-destructive">
-                              {errors.slug.message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Featured image input */}
-                      <PresetImages />
-                    </CardContent>
-                  )}
-                </Card>
-
-                {/* 3. DYNAMIC SECTION BUILDER */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Grid className="h-4.5 w-4.5 text-primary" />
-                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
-                        Page Sections ({sections.length})
-                      </h3>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground font-semibold">
-                      Drag sections to rearrange layout order
+        {/* Workspace Layout: Main Content (Left) + Sticky Add Block Sidebar (Right) */}
+        <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto pr-1">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-24 max-w-7xl mx-auto">
+            {/* Main Editor Content (Left 8/9 Cols) */}
+            <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+              {/* 1. General page info (Collapsible) */}
+              <Card className="border border-border bg-card">
+                <div
+                  onClick={() => setGeneralSettingsOpen(!generalSettingsOpen)}
+                  className="flex items-center justify-between p-5 border-b border-border cursor-pointer hover:bg-muted/10 transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Layers className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold tracking-tight text-foreground">
+                      General Page Info
                     </span>
                   </div>
-
-                  {/* Section cards lists */}
-                  {sections.length === 0 ? (
-                    <div className="rounded-xl border-2 border-dashed border-border p-12 text-center bg-muted/10">
-                      <Layers className="h-8 w-8 text-muted-foreground/60 mx-auto mb-2" />
-                      <p className="text-xs font-semibold text-foreground">
-                        No sections created yet
-                      </p>
-                      <p className="text-[11px] text-muted-foreground mt-1">
-                        Pick a block type below to add structural layers to this
-                        page.
-                      </p>
-                    </div>
+                  {generalSettingsOpen ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <div className="space-y-3">
-                      {fields.map((field, index) => {
-                        const blockType =
-                          sections[index]?.blockType || "rich_text_jodit";
-                        const blockId = sections[index]?._id || field.id;
-                        const isExpanded = !!expandedSections[blockId];
-                        const blockTitle =
-                          sections[index]?.content?.hero?.headline ||
-                          sections[index]?.content?.cta?.title ||
-                          `Section ${index + 1}: ${blockType.replace("_", " ").toUpperCase()}`;
-
-                        return (
-                          <div
-                            key={field.id}
-                            onDragOver={(e) => handleDragOver(e, index)}
-                            className={`rounded-lg border border-border bg-card shadow-sm transition-all duration-200 ${
-                              draggedIndex === index
-                                ? "opacity-40 border-primary"
-                                : ""
-                            }`}
-                          >
-                            {/* Card Header Accordion Trigger */}
-                            <div className="flex items-center justify-between px-4 py-3 bg-muted/30 rounded-t-lg select-none">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div
-                                  draggable
-                                  onDragStart={(e) => handleDragStart(e, index)}
-                                  onDragEnd={handleDragEnd}
-                                  className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground pr-1 p-1 rounded hover:bg-muted/60 transition-colors"
-                                  title="Drag to reorder section"
-                                >
-                                  <GripVertical className="h-4 w-4" />
-                                </div>
-                                <Badge className="text-[10px] uppercase font-bold shrink-0">
-                                  {blockType.replace("_", " ")}
-                                </Badge>
-                                <span className="text-xs font-semibold text-foreground truncate max-w-[200px] md:max-w-xs">
-                                  {blockTitle}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-1 shrink-0">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => toggleSectionExpand(blockId)}
-                                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                >
-                                  {isExpanded ? (
-                                    <ChevronUp className="h-4 w-4" />
-                                  ) : (
-                                    <ChevronDown className="h-4 w-4" />
-                                  )}
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    remove(index);
-                                    toast.error("Removed page section.");
-                                  }}
-                                  className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* Section Inputs Panel */}
-                            {isExpanded && (
-                              <div className="p-5 border-t border-border space-y-4 bg-card rounded-b-lg">
-                                {/* Layout Style select */}
-                                <div className="w-full max-w-[250px] space-y-1.5">
-                                  <Label className="text-xs font-semibold text-muted-foreground">
-                                    Layout Template Style
-                                  </Label>
-                                  <Select
-                                    value={
-                                      sections[index]?.layoutStyle || "default"
-                                    }
-                                    onValueChange={(val) =>
-                                      setValue(
-                                        `sections.${index}.layoutStyle`,
-                                        val as LayoutStyle,
-                                      )
-                                    }
-                                  >
-                                    <SelectTrigger className="h-10 text-sm">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="default">
-                                        Default Flex
-                                      </SelectItem>
-                                      <SelectItem value="full_width">
-                                        Full Screen Width
-                                      </SelectItem>
-                                      <SelectItem value="container_centered">
-                                        Centered Container
-                                      </SelectItem>
-                                      <SelectItem value="grid_2_col">
-                                        2-Column Grid
-                                      </SelectItem>
-                                      <SelectItem value="grid_3_col">
-                                        3-Column Grid
-                                      </SelectItem>
-                                      <SelectItem value="grid_4_col">
-                                        4-Column Grid
-                                      </SelectItem>
-                                      <SelectItem value="two_column_split">
-                                        Two Column Split
-                                      </SelectItem>
-                                      <SelectItem value="accent_bg">
-                                        Accent Background Block
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-
-                                {/* Dynamic Forms depending on blockType */}
-                                {blockType === "hero_section" && (
-                                  <HeroSectionEditor index={index} />
-                                )}
-                                {blockType === "rich_text_jodit" && (
-                                  <RichTextEditor index={index} />
-                                )}
-                                {blockType === "features_grid" && (
-                                  <FeaturesGridEditor index={index} />
-                                )}
-                                {blockType === "gallery_grid" && (
-                                  <GalleryGridEditor index={index} />
-                                )}
-                                {blockType === "faq_accordion" && (
-                                  <FaqAccordionEditor index={index} />
-                                )}
-                                {blockType === "cta_banner" && (
-                                  <CtaBannerEditor index={index} />
-                                )}
-                                {blockType === "technical_specs" && (
-                                  <TechnicalSpecsEditor index={index} />
-                                )}
-                                {blockType === "contact_form" && (
-                                  <div className="p-4 border border-dashed rounded-lg bg-muted/20 text-center">
-                                    <Info className="h-5 w-5 text-primary mx-auto mb-2" />
-                                    <p className="text-xs text-muted-foreground leading-relaxed">
-                                      Contact Form renders public contact fields
-                                      (Name, Email, Message, Service details,
-                                      Phone). Layout templates determine
-                                      background themes.
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   )}
                 </div>
 
-                {/* 4. ADD NEW SECTION SELECTOR */}
-                <div className="rounded-xl border border-border p-6 bg-card space-y-4">
-                  <Label className="text-xs font-bold text-foreground uppercase tracking-wider block border-b pb-2">
-                    Add Block Layout Section
-                  </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {/* <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleAddSection("hero_section")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
-                    >
-                      <Megaphone className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>Hero Section</span>
-                    </Button> */}
+                {generalSettingsOpen && (
+                  <CardContent className="space-y-4 pt-5 pb-5">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="title"
+                          className="text-xs font-semibold text-muted-foreground"
+                        >
+                          Service Title <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="title"
+                          placeholder="e.g. Infinity Pools Construction"
+                          {...register("title")}
+                          onBlur={handleTitleBlur}
+                          className="h-10 text-sm"
+                        />
+                        {errors.title && (
+                          <p className="text-xs text-destructive">
+                            {errors.title.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="slug"
+                          className="text-xs font-semibold text-muted-foreground"
+                        >
+                          URL Slug <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="slug"
+                          placeholder="infinity-pools-construction"
+                          {...register("slug")}
+                          className="h-10 text-sm"
+                        />
+                        {errors.slug && (
+                          <p className="text-xs text-destructive">
+                            {errors.slug.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Featured image input */}
+                    <PresetImages />
+                  </CardContent>
+                )}
+              </Card>
+
+              {/* 2. DYNAMIC SECTION BUILDER */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Grid className="h-4.5 w-4.5 text-primary" />
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
+                      Page Sections ({sections.length})
+                    </h3>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-semibold">
+                    Drag sections to rearrange layout order
+                  </span>
+                </div>
+
+                {/* Section cards lists */}
+                {sections.length === 0 ? (
+                  <div className="rounded-xl border-2 border-dashed border-border p-12 text-center bg-muted/10">
+                    <Layers className="h-8 w-8 text-muted-foreground/60 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-foreground">
+                      No sections created yet
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Pick a block type from the sidebar to add structural layers to this page.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {fields.map((field, index) => {
+                      const blockType =
+                        sections[index]?.blockType || "rich_text_jodit";
+                      const layoutStyle =
+                        sections[index]?.layoutStyle || "default";
+                      const blockId = field.id;
+                      const isExpanded = !collapsedSections[blockId];
+                      const blockTitle =
+                        sections[index]?.content?.hero?.headline ||
+                        sections[index]?.content?.cta?.title ||
+                        `Section ${index + 1}: ${blockType.replace("_", " ").toUpperCase()}`;
+
+                      return (
+                        <SectionEditorCard
+                          key={field.id}
+                          index={index}
+                          fieldId={field.id}
+                          blockType={blockType}
+                          layoutStyle={layoutStyle}
+                          blockTitle={blockTitle}
+                          isExpanded={isExpanded}
+                          isDragging={draggedIndex === index}
+                          onToggleExpand={toggleSectionExpand}
+                          onRemove={handleRemoveSection}
+                          onDragStart={handleDragStart}
+                          onDragOver={handleDragOver}
+                          onDragEnd={handleDragEnd}
+                          onLayoutStyleChange={handleLayoutStyleChange}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* 3. SEO & Metatags Configuration */}
+              <SeoPanel />
+            </div>
+
+            {/* Sticky Add Block Sidebar (Right 4/3 Cols) */}
+            <div className="lg:col-span-4 xl:col-span-3 space-y-6">
+              <div className="sticky top-0 space-y-4">
+                <Card className="border border-border bg-card shadow-sm p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <Label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <Plus className="h-4 w-4 text-primary" />
+                      Add Section Block
+                    </Label>
+                    <Badge variant="secondary" className="text-[10px] font-bold">
+                      {sections.length} Added
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-tight">
+                    Click any block type below to insert a new section into your service layout.
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-2 pt-1">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleAddSection("rich_text_jodit")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
+                      className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
-                      <FileText className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>Rich Text block</span>
+                      <FileText className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="font-semibold text-foreground">Rich Text Block</span>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleAddSection("features_grid")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
+                      className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
-                      <Grid className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>Features Grid</span>
+                      <Grid className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="font-semibold text-foreground">Features Grid</span>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleAddSection("gallery_grid")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
+                      className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
-                      <ImageIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>Gallery Grid</span>
+                      <ImageIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="font-semibold text-foreground">Gallery Grid</span>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleAddSection("faq_accordion")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
+                      className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
-                      <HelpCircle className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>FAQ Accordion</span>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="font-semibold text-foreground">FAQ Accordion</span>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleAddSection("cta_banner")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
+                      className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
-                      <Layers className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>CTA Banner</span>
+                      <Layers className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="font-semibold text-foreground">CTA Banner</span>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleAddSection("technical_specs")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
+                      className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
-                      <Wrench className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>Technical Specs</span>
+                      <Wrench className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="font-semibold text-foreground">Technical Specs</span>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleAddSection("contact_form")}
-                      className="flex flex-col h-20 gap-1.5 items-center justify-center text-xs hover:border-primary hover:bg-primary/5 group"
+                      className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
-                      <Mail className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span>Contact Form</span>
+                      <Mail className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      <span className="font-semibold text-foreground">Contact Form</span>
                     </Button>
                   </div>
-                </div>
-
-                {/* 2. SEO & Metatags Configuration */}
-                <SeoPanel />
+                </Card>
               </div>
-            </div>
-
-            {/* Live Web Preview Frame (Right) */}
-            <div
-              className={`h-full overflow-hidden lg:col-span-5 lg:flex lg:flex-col ${
-                mobileTab === "preview" ? "flex" : "hidden lg:flex"
-              }`}
-            >
-              <PagePreview sections={sections} />
             </div>
           </div>
         </div>
+
+        {/* Live Page Preview Modal Dialog */}
+        <Dialog open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto space-y-4 p-6">
+            <DialogHeader className="border-b pb-3">
+              <DialogTitle className="text-base font-bold flex items-center gap-2">
+                <Eye className="h-5 w-5 text-primary" />
+                Real-time Service Page Web Preview
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Interactive responsive preview showing how this service page will render on live desktop and mobile viewports.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="pt-2">
+              <PagePreview sections={deferredSections} />
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Payload Inspector Modal Dialog */}
+        <Dialog open={inspectModalOpen} onOpenChange={setInspectModalOpen}>
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto space-y-4">
+            <DialogHeader>
+              <DialogTitle className="text-base font-bold flex items-center gap-2">
+                <Code2 className="h-5 w-5 text-primary" />
+                Multipart Form Payload Inspector
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                This inspects the exact `FormData` binary payload, JSON data
+                string, and gallery file mappings prepared for API submission.
+              </DialogDescription>
+            </DialogHeader>
+
+            {inspectData && (
+              <div className="space-y-4 text-xs">
+                <div className="rounded-md border p-3 bg-muted/30 space-y-1">
+                  <span className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
+                    API Target Endpoint
+                  </span>
+                  <p className="font-mono font-bold text-primary">
+                    {inspectData.endpoint}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
+                    Key: &quot;data&quot; (Clean JSON Payload)
+                  </span>
+                  <pre className="p-3 rounded-md bg-slate-950 text-slate-100 font-mono text-[11px] overflow-x-auto max-h-64 scrollbar-thin">
+                    {inspectData.dataJson}
+                  </pre>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="rounded-md border p-3 bg-muted/30 space-y-1">
+                    <span className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
+                      Key: &quot;service_image&quot;
+                    </span>
+                    <p className="font-mono text-foreground">
+                      {inspectData.serviceImageInfo}
+                    </p>
+                  </div>
+
+                  <div className="rounded-md border p-3 bg-muted/30 space-y-1">
+                    <span className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
+                      Key: &quot;gallery_images&quot; (
+                      {inspectData.galleryFilesCount} Files)
+                    </span>
+                    {inspectData.galleryFileNames.length > 0 ? (
+                      <ul className="font-mono text-emerald-600 dark:text-emerald-400 space-y-0.5 max-h-24 overflow-y-auto">
+                        {inspectData.galleryFileNames.map((fn, idx) => (
+                          <li key={idx}>{fn}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="font-mono text-muted-foreground">
+                        No gallery files attached
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
+                    Key: &quot;galleryImageMap&quot; (JSON Mapping)
+                  </span>
+                  <pre className="p-3 rounded-md bg-slate-900 text-slate-200 font-mono text-[11px] overflow-x-auto max-h-40 scrollbar-thin">
+                    {inspectData.galleryMapJson}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </FormProvider>
   );
 }
+
+interface SectionEditorCardProps {
+  index: number;
+  fieldId: string;
+  blockType: BlockType;
+  layoutStyle: LayoutStyle;
+  blockTitle: string;
+  isExpanded: boolean;
+  isDragging: boolean;
+  onToggleExpand: (id: string) => void;
+  onRemove: (index: number) => void;
+  onDragStart: (e: React.DragEvent, index: number) => void;
+  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDragEnd: () => void;
+  onLayoutStyleChange: (index: number, style: LayoutStyle) => void;
+}
+
+const SectionEditorCard = React.memo(function SectionEditorCard({
+  index,
+  fieldId,
+  blockType,
+  layoutStyle,
+  blockTitle,
+  isExpanded,
+  isDragging,
+  onToggleExpand,
+  onRemove,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+  onLayoutStyleChange,
+}: SectionEditorCardProps) {
+  return (
+    <div
+      onDragOver={(e) => onDragOver(e, index)}
+      className={`rounded-lg border border-border bg-card shadow-sm transition-all duration-200 ${
+        isDragging ? "opacity-40 border-primary" : ""
+      }`}
+    >
+      {/* Card Header Accordion Trigger */}
+      <div className="flex items-center justify-between px-4 py-3 bg-muted/30 rounded-t-lg select-none">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            draggable
+            onDragStart={(e) => onDragStart(e, index)}
+            onDragEnd={onDragEnd}
+            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground pr-1 p-1 rounded hover:bg-muted/60 transition-colors"
+            title="Drag to reorder section"
+          >
+            <GripVertical className="h-4 w-4" />
+          </div>
+          <Badge className="text-[10px] uppercase font-bold shrink-0">
+            {blockType.replace("_", " ")}
+          </Badge>
+          <span className="text-xs font-semibold text-foreground truncate max-w-[200px] md:max-w-xs">
+            {blockTitle}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onToggleExpand(fieldId)}
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          >
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onRemove(index)}
+            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Section Inputs Panel */}
+      {isExpanded && (
+        <div className="p-5 border-t border-border space-y-4 bg-card rounded-b-lg">
+          {/* Layout Style select */}
+          <div className="w-full max-w-[250px] space-y-1.5">
+            <Label className="text-xs font-semibold text-muted-foreground">
+              Layout Template Style
+            </Label>
+            <Select
+              value={layoutStyle}
+              onValueChange={(val) => onLayoutStyleChange(index, val as LayoutStyle)}
+            >
+              <SelectTrigger className="h-10 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default Flex</SelectItem>
+                <SelectItem value="full_width">Full Screen Width</SelectItem>
+                <SelectItem value="container_centered">Centered Container</SelectItem>
+                <SelectItem value="grid_2_col">2-Column Grid</SelectItem>
+                <SelectItem value="grid_3_col">3-Column Grid</SelectItem>
+                <SelectItem value="grid_4_col">4-Column Grid</SelectItem>
+                <SelectItem value="two_column_split">Two Column Split</SelectItem>
+                <SelectItem value="accent_bg">Accent Background Block</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Dynamic Forms depending on blockType */}
+          {blockType === "hero_section" && <HeroSectionEditor index={index} />}
+          {blockType === "rich_text_jodit" && <RichTextEditor index={index} />}
+          {blockType === "features_grid" && <FeaturesGridEditor index={index} />}
+          {blockType === "gallery_grid" && <GalleryGridEditor index={index} />}
+          {blockType === "faq_accordion" && <FaqAccordionEditor index={index} />}
+          {blockType === "cta_banner" && <CtaBannerEditor index={index} />}
+          {blockType === "technical_specs" && <TechnicalSpecsEditor index={index} />}
+          {blockType === "contact_form" && (
+            <div className="p-4 border border-dashed rounded-lg bg-muted/20 text-center">
+              <Info className="h-5 w-5 text-primary mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Contact Form renders public contact fields (Name, Email, Message, Service details, Phone). Layout templates determine background themes.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+});

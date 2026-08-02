@@ -3,7 +3,6 @@ import { ProtectedRoute } from "@/components/layout/protected-route";
 import { ThemeInitializer } from "@/components/layout/theme-initializer";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster } from "sonner";
 // need to reply
 import BlogPage from "@/pages/blog/blog-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
@@ -50,7 +49,6 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
-        <Toaster position="top-right" richColors closeButton />
       </TooltipProvider>
     </ThemeInitializer>
   );

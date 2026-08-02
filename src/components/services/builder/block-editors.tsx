@@ -28,10 +28,17 @@ import {
   Info,
   UploadCloud,
   Check,
+  Loader2,
 } from "lucide-react";
 import Tiptap from "@/components/common/Tiptap";
 import type { ServiceFormValues } from "@/lib/validations";
-import type { FeatureItem, GalleryItem, AccordionItem, TechnicalSpec } from "@/types";
+import type {
+  FeatureItem,
+  GalleryItem,
+  AccordionItem,
+  TechnicalSpec,
+} from "@/types";
+import { fileRegistry } from "@/lib/file-registry";
 
 // Presets for block icon selectors
 const ICON_OPTIONS = [
@@ -42,7 +49,7 @@ const ICON_OPTIONS = [
   { name: "Lightbulb", icon: Lightbulb },
   { name: "Hammer", icon: Hammer },
   { name: "Shield", icon: Shield },
-  { name: "Flame", icon: Flame }
+  { name: "Flame", icon: Flame },
 ];
 
 interface EditorProps {
@@ -51,41 +58,15 @@ interface EditorProps {
 
 // 1. HERO SECTION EDITOR
 export function HeroSectionEditor({ index }: EditorProps) {
-  const { register, setValue } = useFormContext<ServiceFormValues>();
-
-  const [simulatedProgress, setSimulatedProgress] = React.useState<number>(0);
-  const [simulatingUpload, setSimulatingUpload] = React.useState(false);
-
-  const startMockBgUpload = () => {
-    setSimulatingUpload(true);
-    setSimulatedProgress(0);
-    const interval = setInterval(() => {
-      setSimulatedProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            const randomPools = [
-              "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=800&auto=format&fit=crop"
-            ];
-            const randomImg = randomPools[Math.floor(Math.random() * randomPools.length)] || "";
-            setValue(`sections.${index}.content.hero.bgImage`, randomImg, { shouldValidate: true });
-            setSimulatingUpload(false);
-            toast.success("Mock hero background upload complete!");
-          }, 200);
-          return 100;
-        }
-        return prev + 25;
-      });
-    }, 120);
-  };
+  const { register } = useFormContext<ServiceFormValues>();
 
   return (
     <div className="space-y-4 pt-3">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">Hero Headline</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            Hero Headline
+          </Label>
           <Input
             placeholder="Headline text..."
             {...register(`sections.${index}.content.hero.headline` as const)}
@@ -93,7 +74,9 @@ export function HeroSectionEditor({ index }: EditorProps) {
           />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">Hero Subheadline</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            Hero Subheadline
+          </Label>
           <Input
             placeholder="Brief subhead description..."
             {...register(`sections.${index}.content.hero.subheadline` as const)}
@@ -101,32 +84,23 @@ export function HeroSectionEditor({ index }: EditorProps) {
           />
         </div>
       </div>
-      
+
       <div className="space-y-2">
-        <Label className="text-xs font-semibold text-muted-foreground">Background Image URL</Label>
+        <Label className="text-xs font-semibold text-muted-foreground">
+          Background Image URL
+        </Label>
         <Input
           placeholder="https://..."
           {...register(`sections.${index}.content.hero.bgImage` as const)}
           className="h-10 text-sm"
         />
-        <div className="flex gap-2 items-center">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={simulatingUpload}
-            onClick={startMockBgUpload}
-            className="text-xs h-9"
-          >
-            {simulatingUpload ? `Uploading (${simulatedProgress}%)` : "Simulate BG Upload"}
-          </Button>
-          <span className="text-[10px] text-muted-foreground">Selects high-res landscaping/pool view</span>
-        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">CTA Button Label</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            CTA Button Label
+          </Label>
           <Input
             placeholder="Get Free Quote"
             {...register(`sections.${index}.content.hero.ctaText` as const)}
@@ -134,7 +108,9 @@ export function HeroSectionEditor({ index }: EditorProps) {
           />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">CTA Button Link</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            CTA Button Link
+          </Label>
           <Input
             placeholder="/contact-us"
             {...register(`sections.${index}.content.hero.ctaLink` as const)}
@@ -153,10 +129,16 @@ export function RichTextEditor({ index }: EditorProps) {
 
   return (
     <div className="space-y-2.5 pt-3">
-      <Label className="text-xs font-semibold text-muted-foreground">Description Rich Content</Label>
+      <Label className="text-xs font-semibold text-muted-foreground">
+        Description Rich Content
+      </Label>
       <Tiptap
         content={htmlContent}
-        setContent={(val) => setValue(`sections.${index}.content.richTextHtml`, val, { shouldValidate: true })}
+        setContent={(val) =>
+          setValue(`sections.${index}.content.richTextHtml`, val, {
+            shouldValidate: true,
+          })
+        }
       />
     </div>
   );
@@ -170,7 +152,11 @@ export function FeaturesGridEditor({ index }: EditorProps) {
   const handleAddFeature = () => {
     setValue(`sections.${index}.content.features`, [
       ...features,
-      { title: "New Deliverable Title", description: "Deliverable description details...", iconUrl: "Waves" }
+      {
+        title: "New Deliverable Title",
+        description: "Deliverable description details...",
+        iconUrl: "Waves",
+      },
     ]);
   };
 
@@ -182,7 +168,7 @@ export function FeaturesGridEditor({ index }: EditorProps) {
   const handleMoveFeature = (idx: number, dir: "up" | "down") => {
     if (dir === "up" && idx === 0) return;
     if (dir === "down" && idx === features.length - 1) return;
-    
+
     const next = [...features];
     const targetIdx = dir === "up" ? idx - 1 : idx + 1;
     const temp = next[idx];
@@ -196,41 +182,95 @@ export function FeaturesGridEditor({ index }: EditorProps) {
   return (
     <div className="space-y-4 pt-3">
       <div className="flex items-center justify-between border-b pb-2">
-        <Label className="text-xs font-semibold text-muted-foreground">Features Checklist Items ({features.length})</Label>
-        <Button type="button" size="sm" onClick={handleAddFeature} className="h-9 text-xs gap-1">
+        <Label className="text-xs font-semibold text-muted-foreground">
+          Features Checklist Items ({features.length})
+        </Label>
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleAddFeature}
+          className="h-9 text-xs gap-1"
+        >
           <Plus className="h-4 w-4" /> Add Item
         </Button>
       </div>
 
       <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
         {features.map((feat: FeatureItem, idx: number) => (
-          <div key={idx} className="rounded-lg border bg-muted/20 p-4 space-y-3 relative">
+          <div
+            key={idx}
+            className="rounded-lg border bg-muted/20 p-4 space-y-3 relative"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-muted-foreground">ITEM #{idx + 1}</span>
+              <span className="text-xs font-bold text-muted-foreground">
+                ITEM #{idx + 1}
+              </span>
               <div className="flex items-center gap-1">
-                <Button type="button" variant="ghost" size="icon" disabled={idx === 0} onClick={() => handleMoveFeature(idx, "up")} className="h-8 w-8"><ArrowUp className="h-4 w-4" /></Button>
-                <Button type="button" variant="ghost" size="icon" disabled={idx === features.length - 1} onClick={() => handleMoveFeature(idx, "down")} className="h-8 w-8"><ArrowDown className="h-4 w-4" /></Button>
-                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveFeature(idx)} className="h-8 w-8 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={idx === 0}
+                  onClick={() => handleMoveFeature(idx, "up")}
+                  className="h-8 w-8"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={idx === features.length - 1}
+                  onClick={() => handleMoveFeature(idx, "down")}
+                  className="h-8 w-8"
+                >
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemoveFeature(idx)}
+                  className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-muted-foreground">Title</Label>
-                <Input {...register(`sections.${index}.content.features.${idx}.title`)} className="h-10 text-sm" />
+                <Label className="text-xs font-semibold text-muted-foreground">
+                  Title
+                </Label>
+                <Input
+                  {...register(
+                    `sections.${index}.content.features.${idx}.title`,
+                  )}
+                  className="h-10 text-sm"
+                />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-muted-foreground">Icon</Label>
+                <Label className="text-xs font-semibold text-muted-foreground">
+                  Icon
+                </Label>
                 <Select
                   value={feat.iconUrl || "Waves"}
-                  onValueChange={(val) => setValue(`sections.${index}.content.features.${idx}.iconUrl`, val)}
+                  onValueChange={(val) =>
+                    setValue(
+                      `sections.${index}.content.features.${idx}.iconUrl`,
+                      val,
+                    )
+                  }
                 >
                   <SelectTrigger className="h-10 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ICON_OPTIONS.map(opt => (
-                      <SelectItem key={opt.name} value={opt.name}>{opt.name}</SelectItem>
+                    {ICON_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.name} value={opt.name}>
+                        {opt.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -238,8 +278,15 @@ export function FeaturesGridEditor({ index }: EditorProps) {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground">Description</Label>
-              <Input {...register(`sections.${index}.content.features.${idx}.description`)} className="h-10 text-sm" />
+              <Label className="text-xs font-semibold text-muted-foreground">
+                Description
+              </Label>
+              <Input
+                {...register(
+                  `sections.${index}.content.features.${idx}.description`,
+                )}
+                className="h-10 text-sm"
+              />
             </div>
           </div>
         ))}
@@ -248,53 +295,46 @@ export function FeaturesGridEditor({ index }: EditorProps) {
   );
 }
 
-const PRESET_GALLERY_IMAGES = [
-  { name: "Luxury Pool", url: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop" },
-  { name: "Verdant Garden", url: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=800&auto=format&fit=crop" },
-  { name: "Evening Lighting", url: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop" },
-  { name: "Backyard Lounge", url: "https://images.unsplash.com/photo-1600210492493-0946911123ea?q=80&w=800&auto=format&fit=crop" },
-];
-
 interface GalleryImagePickerProps {
-  value: string;
-  onChange: (url: string) => void;
+  item: GalleryItem;
+  onFileSelect: (file: File) => void;
+  onRemove: () => void;
 }
 
-function GalleryImagePicker({ value, onChange }: GalleryImagePickerProps) {
-  const [uploadProgress, setUploadProgress] = React.useState<number | null>(null);
+function GalleryImagePicker({
+  item,
+  onFileSelect,
+  onRemove,
+}: GalleryImagePickerProps) {
   const [isDragging, setIsDragging] = React.useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (file: File) => {
-    setUploadProgress(0);
-    const reader = new FileReader();
+  const fileInRegistry = item.uploadKey
+    ? fileRegistry.get(item.uploadKey)
+    : null;
+  const attachedFile = item.file || fileInRegistry;
 
-    reader.onloadend = () => {
-      const base64Data = reader.result as string;
-      const interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev === null) return null;
-          if (prev >= 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-              onChange(base64Data);
-              setUploadProgress(null);
-              toast.success(`Image "${file.name}" uploaded successfully!`);
-            }, 150);
-            return 100;
-          }
-          return prev + 25;
-        });
-      }, 50);
-    };
+  // Local object URL preview for uploaded file with proper cleanup
+  const [localPreviewUrl, setLocalPreviewUrl] = React.useState<string | null>(
+    null,
+  );
 
-    reader.onerror = () => {
-      setUploadProgress(null);
-      toast.error("Failed to read file.");
-    };
+  React.useEffect(() => {
+    if (attachedFile && attachedFile instanceof File) {
+      const url = URL.createObjectURL(attachedFile);
+      setLocalPreviewUrl(url);
+      setIsProcessing(false);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setLocalPreviewUrl(null);
+      setIsProcessing(false);
+    }
+  }, [attachedFile]);
 
-    reader.readAsDataURL(file);
-  };
+  const displayUrl = localPreviewUrl || item.imageUrl || "";
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -305,6 +345,19 @@ function GalleryImagePicker({ value, onChange }: GalleryImagePickerProps) {
     setIsDragging(false);
   };
 
+  const processFileSelect = (file: File) => {
+    setIsProcessing(true);
+    setTimeout(() => {
+      try {
+        onFileSelect(file);
+      } catch (err) {
+        console.error("Error processing gallery file:", err);
+      } finally {
+        setIsProcessing(false);
+      }
+    }, 150);
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -312,138 +365,116 @@ function GalleryImagePicker({ value, onChange }: GalleryImagePickerProps) {
     if (files && files.length > 0) {
       const file = files[0];
       if (file && file.type.startsWith("image/")) {
-        handleFileUpload(file);
+        processFileSelect(file);
       } else {
         toast.error("Please drop an image file.");
       }
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
       if (file && file.type.startsWith("image/")) {
-        handleFileUpload(file);
+        processFileSelect(file);
       } else {
         toast.error("Please select an image file.");
       }
     }
+    // Clear value to release file input stream handle
+    e.target.value = "";
   };
 
-  const isPreset = PRESET_GALLERY_IMAGES.some((p) => p.url === value);
-
   return (
-    <div className="space-y-2">
-      <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-        <UploadCloud className="h-3.5 w-3.5" />
-        Gallery Image <span className="text-destructive">*</span>
-      </Label>
-
+    <div className="space-y-1">
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => {
-          if (uploadProgress === null) {
-            fileInputRef.current?.click();
-          }
-        }}
-        className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200 cursor-pointer overflow-hidden ${
-          value ? "aspect-video max-w-full w-full" : "p-4 text-center min-h-[110px]"
-        } ${
-          isDragging
-            ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-            : "border-border bg-muted/20 hover:bg-muted/40 hover:border-muted-foreground/30"
+        onClick={() => !isProcessing && fileInputRef.current?.click()}
+        className={`relative flex flex-col items-center justify-center rounded-md border border-dashed transition-all duration-200 cursor-pointer overflow-hidden h-28 w-full ${
+          isProcessing
+            ? "border-primary/50 bg-primary/5 cursor-wait"
+            : isDragging
+              ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+              : displayUrl
+                ? "border-border bg-muted/10 hover:border-primary/50"
+                : "border-border bg-muted/20 hover:bg-muted/40 hover:border-primary/40"
         }`}
       >
         <input
           type="file"
           ref={fileInputRef}
-          onChange={handleFileSelect}
+          onChange={handleFileChange}
           accept="image/*"
           className="hidden"
         />
 
-        {uploadProgress !== null ? (
-          <div className="w-full max-w-[200px] space-y-2 p-3" onClick={(e) => e.stopPropagation()}>
-            <p className="text-xs font-medium text-foreground">Uploading image...</p>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full bg-primary transition-all duration-150 animate-pulse"
-                style={{ width: `${uploadProgress}%` }}
-              />
-            </div>
-            <p className="text-[10px] text-muted-foreground text-right">{uploadProgress}%</p>
+        {isProcessing ? (
+          <div className="flex flex-col items-center justify-center gap-1.5 p-2 text-center bg-background/80 backdrop-blur-xs w-full h-full">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <span className="text-[10px] font-semibold text-foreground">
+              Attaching Image...
+            </span>
           </div>
-        ) : value ? (
+        ) : displayUrl ? (
           <>
-            <img src={value} alt="Gallery Preview" className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2">
-              <p className="text-white text-xs font-medium">Drop new image or click to replace</p>
-              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={displayUrl}
+              alt="Gallery Preview"
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1.5 p-2 text-center">
+              <p className="text-white text-[10px] font-medium leading-tight">
+                Click or drop to replace
+              </p>
+              <div
+                className="flex gap-1.5"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  className="h-7 text-[10px] px-2.5 bg-white/90 text-foreground hover:bg-white"
+                  className="h-6 text-[9px] px-2 bg-white/90 text-foreground hover:bg-white"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  Replace Image
+                  Replace
                 </Button>
                 <Button
                   type="button"
                   variant="destructive"
                   size="sm"
-                  className="h-7 text-[10px] px-2.5"
-                  onClick={() => onChange("")}
+                  className="h-6 text-[9px] px-2"
+                  onClick={onRemove}
                 >
                   Remove
                 </Button>
               </div>
             </div>
-            <div className="absolute bottom-2 left-2 bg-background/90 backdrop-blur-sm text-foreground px-2 py-0.5 rounded text-[10px] font-medium border border-border shadow-sm">
-              {isPreset ? "Preset Image" : "Uploaded File"}
+            <div className="absolute bottom-1.5 left-1.5 bg-background/90 backdrop-blur-sm text-foreground px-1.5 py-0.5 rounded text-[9px] font-medium border border-border shadow-sm">
+              {attachedFile ? (
+                <span className="text-emerald-500 font-bold truncate max-w-[120px] inline-block align-bottom">
+                  {attachedFile.name}
+                </span>
+              ) : (
+                "Saved Image"
+              )}
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center p-2">
-            <UploadCloud className="mb-1 h-7 w-7 text-muted-foreground/60" />
-            <p className="text-xs font-medium text-foreground">
-              Drag & drop image, or <span className="text-primary font-semibold">browse files</span>
+          <div className="flex flex-col items-center justify-center p-2 text-center">
+            <UploadCloud className="mb-1 h-5 w-5 text-primary/70" />
+            <p className="text-[11px] font-medium text-foreground">
+              Add image{" "}
+              <span className="text-primary font-semibold">browse</span>
             </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Supports JPG, PNG, WEBP, or GIF</p>
+            <p className="text-[9px] text-muted-foreground mt-0.5">
+              JPG, PNG, WEBP
+            </p>
           </div>
         )}
-      </div>
-
-      {/* Preset images selection strip */}
-      <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-          Or Select Preset
-        </span>
-        <div className="grid grid-cols-4 gap-1.5">
-          {PRESET_GALLERY_IMAGES.map((preset) => {
-            const isSel = value === preset.url;
-            return (
-              <div
-                key={preset.url}
-                onClick={() => onChange(preset.url)}
-                className={`group relative aspect-video overflow-hidden rounded-md border-2 bg-muted cursor-pointer transition-all duration-200 ${
-                  isSel ? "border-primary ring-2 ring-primary/20" : "border-transparent opacity-80 hover:opacity-100"
-                }`}
-                title={preset.name}
-              >
-                <img src={preset.url} alt={preset.name} className="h-full w-full object-cover" />
-                {isSel && (
-                  <div className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
-                    <Check className="h-2.5 w-2.5 stroke-[3]" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
@@ -452,70 +483,210 @@ function GalleryImagePicker({ value, onChange }: GalleryImagePickerProps) {
 // 4. GALLERY GRID EDITOR
 export function GalleryGridEditor({ index }: EditorProps) {
   const { register, watch, setValue } = useFormContext<ServiceFormValues>();
-  const gallery = watch(`sections.${index}.content.gallery`) || [];
+  const gallery: GalleryItem[] =
+    watch(`sections.${index}.content.gallery`) || [];
+
+  const [isBatchProcessing, setIsBatchProcessing] = React.useState(false);
+  const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
   const handleAddImage = () => {
+    const uploadKey = `gallery-${index + 1}-img-${gallery.length + 1}-${Date.now()}`;
     setValue(`sections.${index}.content.gallery`, [
       ...gallery,
-      { imageUrl: PRESET_GALLERY_IMAGES[0]?.url || "", caption: "Gallery Image Caption", altText: "Alt Text" }
-    ], { shouldValidate: true });
+      {
+        uploadKey,
+        imageUrl: "",
+        caption: "Gallery Image Caption",
+        altText: "Alt Text",
+      },
+    ]);
   };
 
   const handleRemoveImage = (idx: number) => {
+    const item = gallery[idx];
+    if (item?.uploadKey) {
+      fileRegistry.delete(item.uploadKey);
+    }
     const next = gallery.filter((_, i: number) => i !== idx);
-    setValue(`sections.${index}.content.gallery`, next, { shouldValidate: true });
+    setValue(`sections.${index}.content.gallery`, next);
+  };
+
+  const handleFileSelect = (idx: number, file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(
+        `Gallery image "${file.name}" is ${(file.size / (1024 * 1024)).toFixed(2)} MB. Maximum allowed size is 5 MB.`,
+      );
+      return;
+    }
+    const item = gallery[idx];
+    const uploadKey =
+      item?.uploadKey || `gallery-${index + 1}-img-${idx + 1}-${Date.now()}`;
+
+    // Store binary File object in fileRegistry outside RHF state tree to prevent freeze
+    fileRegistry.set(uploadKey, file);
+
+    const previewUrl = URL.createObjectURL(file);
+
+    const updated = [...gallery];
+    updated[idx] = {
+      ...item,
+      uploadKey,
+      imageUrl: previewUrl,
+      caption: item?.caption || file.name.replace(/\.[^/.]+$/, ""),
+      altText: item?.altText || file.name,
+    };
+    setValue(`sections.${index}.content.gallery`, updated);
+    toast.success(`Attached "${file.name}" for upload.`);
+  };
+
+  const handleBatchDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      setIsBatchProcessing(true);
+      setTimeout(() => {
+        try {
+          const validFiles: File[] = [];
+          Array.from(files).forEach((file) => {
+            if (file.type.startsWith("image/")) {
+              if (file.size <= MAX_FILE_SIZE_BYTES) {
+                validFiles.push(file);
+              } else {
+                toast.error(`"${file.name}" exceeds 5 MB limit.`);
+              }
+            }
+          });
+
+          if (validFiles.length > 0) {
+            const newItems: GalleryItem[] = validFiles.map((file, i) => {
+              const uploadKey = `gallery-${index + 1}-img-${gallery.length + i + 1}-${Date.now()}`;
+              fileRegistry.set(uploadKey, file);
+              const previewUrl = URL.createObjectURL(file);
+              return {
+                uploadKey,
+                imageUrl: previewUrl,
+                caption: file.name.replace(/\.[^/.]+$/, ""),
+                altText: file.name,
+              };
+            });
+
+            setValue(`sections.${index}.content.gallery`, [
+              ...gallery,
+              ...newItems,
+            ]);
+            toast.success(`Added ${validFiles.length} image(s) to gallery.`);
+          }
+        } catch (err) {
+          console.error("Error batch processing gallery files:", err);
+        } finally {
+          setIsBatchProcessing(false);
+        }
+      }, 150);
+    }
   };
 
   return (
-    <div className="space-y-4 pt-3">
+    <div className="space-y-3 pt-2">
       <div className="flex items-center justify-between border-b pb-2">
-        <Label className="text-xs font-semibold text-muted-foreground">Gallery Showcase Images ({gallery.length})</Label>
-        <Button type="button" size="sm" onClick={handleAddImage} className="h-9 text-xs gap-1">
-          <Plus className="h-4 w-4" /> Add Image
+        <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+          <UploadCloud className="h-3.5 w-3.5 text-primary" />
+          Gallery Showcase Images ({gallery.length})
+        </Label>
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleAddImage}
+          className="h-8 text-xs gap-1"
+        >
+          <Plus className="h-3.5 w-3.5" /> Add Image
         </Button>
       </div>
 
-      <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-        {gallery.map((img: GalleryItem, idx: number) => {
-          const currentUrl = watch(`sections.${index}.content.gallery.${idx}.imageUrl`) || img.imageUrl || "";
-
-          return (
-            <div key={idx} className="rounded-lg border bg-muted/20 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-muted-foreground">IMAGE #{idx + 1}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveImage(idx)}
-                  className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Image Picker */}
-              <GalleryImagePicker
-                value={currentUrl}
-                onChange={(url) =>
-                  setValue(`sections.${index}.content.gallery.${idx}.imageUrl`, url, { shouldValidate: true })
-                }
-              />
-
-              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-muted-foreground">Caption</Label>
-                  <Input {...register(`sections.${index}.content.gallery.${idx}.caption`)} className="h-10 text-sm" />
+      {isBatchProcessing ? (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-6 text-center flex flex-col items-center justify-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <p className="text-xs font-semibold text-foreground">
+            Processing gallery images...
+          </p>
+        </div>
+      ) : gallery.length === 0 ? (
+        <div
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleBatchDrop}
+          onClick={handleAddImage}
+          className="rounded-lg border-2 border-dashed border-border p-6 text-center bg-muted/10 hover:bg-muted/20 hover:border-primary/40 cursor-pointer transition-colors space-y-1.5"
+        >
+          <UploadCloud className="h-7 w-7 text-muted-foreground/60 mx-auto" />
+          <p className="text-xs font-semibold text-foreground">
+            No gallery images added yet
+          </p>
+          <p className="text-[10px] text-muted-foreground">
+            Click here, or drag & drop multiple image files to build your
+            gallery grid.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 max-h-[420px] overflow-y-auto pr-1">
+          {gallery.map((img: GalleryItem, idx: number) => {
+            return (
+              <div
+                key={idx}
+                className="rounded-lg border bg-muted/10 p-3 space-y-2 relative shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    Image #{idx + 1}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveImage(idx)}
+                    className="h-6 w-6 text-destructive hover:bg-destructive/10"
+                    title="Remove image item"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-muted-foreground">Alt Text</Label>
-                  <Input {...register(`sections.${index}.content.gallery.${idx}.altText`)} className="h-10 text-sm" />
+
+                {/* Compact Image Picker */}
+                <GalleryImagePicker
+                  item={img}
+                  onFileSelect={(file) => handleFileSelect(idx, file)}
+                  onRemove={() => handleRemoveImage(idx)}
+                />
+
+                <div className="space-y-1.5 pt-1">
+                  <div>
+                    <Label className="text-[10px] font-medium text-muted-foreground">
+                      Caption
+                    </Label>
+                    <Input
+                      {...register(
+                        `sections.${index}.content.gallery.${idx}.caption`,
+                      )}
+                      placeholder="Caption..."
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] font-medium text-muted-foreground">
+                      Alt Text
+                    </Label>
+                    <Input
+                      {...register(
+                        `sections.${index}.content.gallery.${idx}.altText`,
+                      )}
+                      placeholder="Alt text..."
+                      className="h-8 text-xs"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -528,7 +699,7 @@ export function FaqAccordionEditor({ index }: EditorProps) {
   const handleAddFaq = () => {
     setValue(`sections.${index}.content.accordionItems`, [
       ...accordions,
-      { question: "FAQ Question?", answer: "FAQ Answer text goes here..." }
+      { question: "FAQ Question?", answer: "FAQ Answer text goes here..." },
     ]);
   };
 
@@ -540,27 +711,62 @@ export function FaqAccordionEditor({ index }: EditorProps) {
   return (
     <div className="space-y-4 pt-3">
       <div className="flex items-center justify-between border-b pb-2">
-        <Label className="text-xs font-semibold text-muted-foreground">FAQ Accordion Items ({accordions.length})</Label>
-        <Button type="button" size="sm" onClick={handleAddFaq} className="h-9 text-xs gap-1">
+        <Label className="text-xs font-semibold text-muted-foreground">
+          FAQ Accordion Items ({accordions.length})
+        </Label>
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleAddFaq}
+          className="h-9 text-xs gap-1"
+        >
           <Plus className="h-4 w-4" /> Add FAQ
         </Button>
       </div>
 
       <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
         {accordions.map((_: AccordionItem, idx: number) => (
-          <div key={idx} className="rounded-lg border bg-muted/20 p-4 space-y-3">
+          <div
+            key={idx}
+            className="rounded-lg border bg-muted/20 p-4 space-y-3"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-muted-foreground">FAQ #{idx + 1}</span>
-              <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveFaq(idx)} className="h-8 w-8 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
+              <span className="text-xs font-bold text-muted-foreground">
+                FAQ #{idx + 1}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemoveFaq(idx)}
+                className="h-8 w-8 text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground">Question</Label>
-              <Input {...register(`sections.${index}.content.accordionItems.${idx}.question`)} className="h-10 text-sm" />
+              <Label className="text-xs font-semibold text-muted-foreground">
+                Question
+              </Label>
+              <Input
+                {...register(
+                  `sections.${index}.content.accordionItems.${idx}.question`,
+                )}
+                className="h-10 text-sm"
+              />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground">Answer</Label>
-              <Textarea rows={3} {...register(`sections.${index}.content.accordionItems.${idx}.answer`)} className="text-sm resize-none min-h-[80px]" />
+              <Label className="text-xs font-semibold text-muted-foreground">
+                Answer
+              </Label>
+              <Textarea
+                rows={3}
+                {...register(
+                  `sections.${index}.content.accordionItems.${idx}.answer`,
+                )}
+                className="text-sm resize-none min-h-[80px]"
+              />
             </div>
           </div>
         ))}
@@ -577,7 +783,9 @@ export function CtaBannerEditor({ index }: EditorProps) {
     <div className="space-y-4 pt-3">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">CTA Banner Title</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            CTA Banner Title
+          </Label>
           <Input
             placeholder="e.g. Start Your Dream Project Today"
             {...register(`sections.${index}.content.cta.title` as const)}
@@ -585,7 +793,9 @@ export function CtaBannerEditor({ index }: EditorProps) {
           />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">Phone Number Link</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            Phone Number Link
+          </Label>
           <Input
             placeholder="+971 50 123 4567"
             {...register(`sections.${index}.content.cta.phoneNumber` as const)}
@@ -594,7 +804,9 @@ export function CtaBannerEditor({ index }: EditorProps) {
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-semibold text-muted-foreground">Description Text</Label>
+        <Label className="text-xs font-semibold text-muted-foreground">
+          Description Text
+        </Label>
         <Textarea
           rows={3}
           placeholder="Brief copy for banner..."
@@ -604,7 +816,9 @@ export function CtaBannerEditor({ index }: EditorProps) {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">Button Text</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            Button Text
+          </Label>
           <Input
             placeholder="Contact Us"
             {...register(`sections.${index}.content.cta.buttonText` as const)}
@@ -612,7 +826,9 @@ export function CtaBannerEditor({ index }: EditorProps) {
           />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">Button Link</Label>
+          <Label className="text-xs font-semibold text-muted-foreground">
+            Button Link
+          </Label>
           <Input
             placeholder="/contact-us"
             {...register(`sections.${index}.content.cta.buttonLink` as const)}
@@ -632,7 +848,7 @@ export function TechnicalSpecsEditor({ index }: EditorProps) {
   const handleAddSpec = () => {
     setValue(`sections.${index}.content.specs`, [
       ...specs,
-      { label: "Spec Label Name", value: "Spec Value Description" }
+      { label: "Spec Label Name", value: "Spec Value Description" },
     ]);
   };
 
@@ -644,8 +860,15 @@ export function TechnicalSpecsEditor({ index }: EditorProps) {
   return (
     <div className="space-y-4 pt-3">
       <div className="flex items-center justify-between border-b pb-2">
-        <Label className="text-xs font-semibold text-muted-foreground">Technical Specifications ({specs.length})</Label>
-        <Button type="button" size="sm" onClick={handleAddSpec} className="h-9 text-xs gap-1">
+        <Label className="text-xs font-semibold text-muted-foreground">
+          Technical Specifications ({specs.length})
+        </Label>
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleAddSpec}
+          className="h-9 text-xs gap-1"
+        >
           <Plus className="h-4 w-4" /> Add Spec
         </Button>
       </div>
@@ -655,15 +878,33 @@ export function TechnicalSpecsEditor({ index }: EditorProps) {
           <div key={idx} className="flex gap-3 items-end">
             <div className="flex-1 grid gap-3 grid-cols-2">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-muted-foreground">Spec Label</Label>
-                <Input {...register(`sections.${index}.content.specs.${idx}.label`)} className="h-10 text-sm" />
+                <Label className="text-xs font-semibold text-muted-foreground">
+                  Spec Label
+                </Label>
+                <Input
+                  {...register(`sections.${index}.content.specs.${idx}.label`)}
+                  className="h-10 text-sm"
+                />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-muted-foreground">Value</Label>
-                <Input {...register(`sections.${index}.content.specs.${idx}.value`)} className="h-10 text-sm" />
+                <Label className="text-xs font-semibold text-muted-foreground">
+                  Value
+                </Label>
+                <Input
+                  {...register(`sections.${index}.content.specs.${idx}.value`)}
+                  className="h-10 text-sm"
+                />
               </div>
             </div>
-            <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveSpec(idx)} className="h-10 w-10 text-destructive hover:bg-destructive/10 shrink-0"><Trash2 className="h-4.5 w-4.5" /></Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => handleRemoveSpec(idx)}
+              className="h-10 w-10 text-destructive hover:bg-destructive/10 shrink-0"
+            >
+              <Trash2 className="h-4.5 w-4.5" />
+            </Button>
           </div>
         ))}
       </div>

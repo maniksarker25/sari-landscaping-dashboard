@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Wrench } from "lucide-react";
+import { Plus, Wrench, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader } from "@/components/common/page-header";
 import { SearchInput } from "@/components/common/search-input";
 import { EmptyState } from "@/components/common/empty-state";
@@ -10,10 +11,31 @@ import { useServicesFilter } from "@/components/services/use-services-filter";
 import { ServicesCategoryTabs } from "@/components/services/services-category-tabs";
 import { ServicesTable } from "@/components/services/services-table";
 import { ServiceViewDialog } from "@/components/services/service-view-dialog";
-import { useServicesQuery } from "@/redux/services/serviceApis";
+import {
+  useGetServicesQuery,
+  useDeleteServiceMutation,
+  usePublishServiceMutation,
+  useSaveDraftServiceMutation,
+} from "@/redux/services/serviceApis";
+import type { Service } from "@/types";
 
 export default function ServicesPage() {
   const navigate = useNavigate();
+
+  // Fetch services from RTK Query server API
+  const { data: responseData, isLoading, isFetching } = useGetServicesQuery({});
+  const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
+  const [publishService] = usePublishServiceMutation();
+  const [saveDraftService] = useSaveDraftServiceMutation();
+
+  const apiServices: Service[] | undefined = React.useMemo(() => {
+    const data = responseData?.data;
+    if (!data) return undefined;
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data.services)) return data.services;
+    return undefined;
+  }, [responseData]);
+
   const {
     activeTab,
     setActiveTab,
@@ -25,13 +47,26 @@ export default function ServicesPage() {
     setDeleteTarget,
     counts,
     filtered,
-    handleDelete,
-  } = useServicesFilter();
-  const { data, isLoading } = useServicesQuery({});
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  console.log(data?.data);
+    handleDelete: localDelete,
+  } = useServicesFilter(apiServices);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const targetId = deleteTarget._id || deleteTarget.id;
+    try {
+      if (targetId) {
+        await deleteService(targetId).unwrap();
+        toast.success(`Service "${deleteTarget.title}" deleted.`);
+      } else {
+        localDelete(deleteTarget);
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to delete service.");
+    } finally {
+      setDeleteTarget(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -51,7 +86,7 @@ export default function ServicesPage() {
         counts={counts}
       />
 
-      {/* Search Input */}
+      {/* Search Input & Status Indicator */}
       <div className="flex items-center justify-between gap-4">
         <SearchInput
           value={search}
@@ -59,10 +94,21 @@ export default function ServicesPage() {
           placeholder="Search services by title, category, or slug..."
           className="max-w-md w-full"
         />
+        {isFetching && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+            Updating...
+          </div>
+        )}
       </div>
 
-      {/* Table or Empty State */}
-      {filtered.length === 0 ? (
+      {/* Table, Loading or Empty State */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-16 space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm font-medium text-muted-foreground">Loading services...</p>
+        </div>
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={Wrench}
           title="No services found"
@@ -99,8 +145,9 @@ export default function ServicesPage() {
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title={`Delete "${deleteTarget?.title}"?`}
         description="This will permanently remove the service from your website."
-        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        onConfirm={confirmDelete}
       />
     </div>
   );
 }
+

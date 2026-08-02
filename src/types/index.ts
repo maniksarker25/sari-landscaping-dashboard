@@ -15,9 +15,11 @@ export interface FeatureItem {
 }
 
 export interface GalleryItem {
-  imageUrl: string;
+  uploadKey?: string;
+  imageUrl?: string;
   caption?: string;
   altText?: string;
+  file?: File;
 }
 
 export interface AccordionItem {
@@ -71,7 +73,7 @@ export type LayoutStyle =
   | "accent_bg";
 
 export interface PageBlock {
-  _id: string;
+  _id?: string;
   blockType: BlockType;
   order: number;
   layoutStyle: LayoutStyle;
@@ -87,16 +89,18 @@ export interface SeoSettings {
 }
 
 export interface Service {
+  _id?: string;
   id: string;
   title: string;
   slug: string;
   category: "Pools" | "Landscaping";
   isPublished: boolean;
   featuredImage: string;
+  featuredImageFile?: File;
   sections: PageBlock[];
   seo?: SeoSettings;
   createdAt?: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface Project {

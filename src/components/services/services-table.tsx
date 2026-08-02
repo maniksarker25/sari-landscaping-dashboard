@@ -91,7 +91,7 @@ export function ServicesTable({ services, onView, onDelete }: ServicesTableProps
                   <StatusBadge status={service.isPublished ? "published" : "draft"} />
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                  {formatDate(service.updatedAt)}
+                  {service.updatedAt ? formatDate(service.updatedAt) : "N/A"}
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>

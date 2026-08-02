@@ -372,7 +372,7 @@ export default function Tiptap({ content, setContent }: TiptapProps) {
   });
 
   useEffect(() => {
-    if (editor && content !== undefined && editor.getHTML() !== content) {
+    if (editor && !editor.isFocused && content !== undefined && editor.getHTML() !== content) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);

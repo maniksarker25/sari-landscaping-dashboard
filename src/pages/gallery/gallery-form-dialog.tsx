@@ -26,25 +26,6 @@ import { generateId } from "@/lib/utils";
 import type { GalleryImage } from "@/types";
 import { UploadCloud, Check } from "lucide-react";
 
-const PRESET_GALLERY_IMAGES = [
-  {
-    name: "Luxury Pool",
-    url: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Verdant Garden",
-    url: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Evening Lighting",
-    url: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Backyard Lounge",
-    url: "https://images.unsplash.com/photo-1600210492493-0946911123ea?q=80&w=800&auto=format&fit=crop",
-  },
-];
-
 interface GalleryFormDialogProps {
   open: boolean;
   image?: GalleryImage;
@@ -265,9 +246,7 @@ export function GalleryFormDialog({
                     </div>
                   </div>
                   <div className="absolute bottom-2 left-2 bg-background/90 backdrop-blur-sm text-foreground px-2 py-0.5 rounded text-[10px] font-medium border border-border shadow-sm">
-                    {PRESET_GALLERY_IMAGES.some((p) => p.url === src)
-                      ? "Preset Image"
-                      : "Uploaded File"}
+                    Uploaded File
                   </div>
                 </>
               ) : (
@@ -284,43 +263,6 @@ export function GalleryFormDialog({
                   </p>
                 </div>
               )}
-            </div>
-
-            {/* Presets Strip */}
-            <div className="space-y-1 pt-1">
-              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                Or Select Preset
-              </span>
-              <div className="grid grid-cols-4 gap-1.5">
-                {PRESET_GALLERY_IMAGES.map((preset) => {
-                  const isSel = src === preset.url;
-                  return (
-                    <div
-                      key={preset.url}
-                      onClick={() =>
-                        setValue("src", preset.url, { shouldValidate: true })
-                      }
-                      className={`group relative aspect-video overflow-hidden rounded-md border-2 bg-muted cursor-pointer transition-all duration-200 ${
-                        isSel
-                          ? "border-primary ring-2 ring-primary/20"
-                          : "border-transparent opacity-80 hover:opacity-100"
-                      }`}
-                      title={preset.name}
-                    >
-                      <img
-                        src={preset.url}
-                        alt={preset.name}
-                        className="h-full w-full object-cover"
-                      />
-                      {isSel && (
-                        <div className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
-                          <Check className="h-2.5 w-2.5 stroke-[3]" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
             </div>
 
             {errors.src && (

@@ -5,9 +5,16 @@ import type { Service } from "@/types";
 
 export type ServiceCategoryTab = "all" | "Landscaping" | "Pools";
 
-export function useServicesFilter() {
-  const items = useServicesStore((s) => s.items);
+export function useServicesFilter(apiServices?: Service[]) {
+  const localItems = useServicesStore((s) => s.items);
   const remove = useServicesStore((s) => s.remove);
+
+  const items = React.useMemo(() => {
+    if (apiServices && Array.isArray(apiServices)) {
+      return apiServices;
+    }
+    return localItems;
+  }, [apiServices, localItems]);
 
   const [activeTab, setActiveTab] = React.useState<ServiceCategoryTab>("all");
   const [search, setSearch] = React.useState("");
