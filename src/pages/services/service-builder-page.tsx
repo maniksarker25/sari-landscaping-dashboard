@@ -36,8 +36,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/ui/select";  
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -580,7 +579,8 @@ export default function ServiceBuilderPage() {
                           htmlFor="title"
                           className="text-xs font-semibold text-muted-foreground"
                         >
-                          Service Title <span className="text-destructive">*</span>
+                          Service Title{" "}
+                          <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="title"
@@ -645,7 +645,8 @@ export default function ServiceBuilderPage() {
                       No sections created yet
                     </p>
                     <p className="text-[11px] text-muted-foreground mt-1">
-                      Pick a block type from the sidebar to add structural layers to this page.
+                      Pick a block type from the sidebar to add structural
+                      layers to this page.
                     </p>
                   </div>
                 ) : (
@@ -698,12 +699,16 @@ export default function ServiceBuilderPage() {
                       <Plus className="h-4 w-4 text-primary" />
                       Add Section Block
                     </Label>
-                    <Badge variant="secondary" className="text-[10px] font-bold">
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] font-bold"
+                    >
                       {sections.length} Added
                     </Badge>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-tight">
-                    Click any block type below to insert a new section into your service layout.
+                    Click any block type below to insert a new section into your
+                    service layout.
                   </p>
 
                   <div className="grid grid-cols-1 gap-2 pt-1">
@@ -714,7 +719,9 @@ export default function ServiceBuilderPage() {
                       className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
                       <FileText className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="font-semibold text-foreground">Rich Text Block</span>
+                      <span className="font-semibold text-foreground">
+                        Rich Text Block
+                      </span>
                     </Button>
                     <Button
                       type="button"
@@ -723,7 +730,9 @@ export default function ServiceBuilderPage() {
                       className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
                       <Grid className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="font-semibold text-foreground">Features Grid</span>
+                      <span className="font-semibold text-foreground">
+                        Features Grid
+                      </span>
                     </Button>
                     <Button
                       type="button"
@@ -732,7 +741,9 @@ export default function ServiceBuilderPage() {
                       className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
                       <ImageIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="font-semibold text-foreground">Gallery Grid</span>
+                      <span className="font-semibold text-foreground">
+                        Gallery Grid
+                      </span>
                     </Button>
                     <Button
                       type="button"
@@ -741,7 +752,9 @@ export default function ServiceBuilderPage() {
                       className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
                       <HelpCircle className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="font-semibold text-foreground">FAQ Accordion</span>
+                      <span className="font-semibold text-foreground">
+                        FAQ Accordion
+                      </span>
                     </Button>
                     <Button
                       type="button"
@@ -750,7 +763,9 @@ export default function ServiceBuilderPage() {
                       className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
                       <Layers className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="font-semibold text-foreground">CTA Banner</span>
+                      <span className="font-semibold text-foreground">
+                        CTA Banner
+                      </span>
                     </Button>
                     <Button
                       type="button"
@@ -759,7 +774,9 @@ export default function ServiceBuilderPage() {
                       className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
                       <Wrench className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="font-semibold text-foreground">Technical Specs</span>
+                      <span className="font-semibold text-foreground">
+                        Technical Specs
+                      </span>
                     </Button>
                     <Button
                       type="button"
@@ -768,7 +785,9 @@ export default function ServiceBuilderPage() {
                       className="flex items-center justify-start h-10 gap-2.5 text-xs px-3 hover:border-primary hover:bg-primary/5 group"
                     >
                       <Mail className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      <span className="font-semibold text-foreground">Contact Form</span>
+                      <span className="font-semibold text-foreground">
+                        Contact Form
+                      </span>
                     </Button>
                   </div>
                 </Card>
@@ -786,7 +805,8 @@ export default function ServiceBuilderPage() {
                 Real-time Service Page Web Preview
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
-                Interactive responsive preview showing how this service page will render on live desktop and mobile viewports.
+                Interactive responsive preview showing how this service page
+                will render on live desktop and mobile viewports.
               </DialogDescription>
             </DialogHeader>
 
@@ -970,7 +990,9 @@ const SectionEditorCard = React.memo(function SectionEditorCard({
             </Label>
             <Select
               value={layoutStyle}
-              onValueChange={(val) => onLayoutStyleChange(index, val as LayoutStyle)}
+              onValueChange={(val) =>
+                onLayoutStyleChange(index, val as LayoutStyle)
+              }
             >
               <SelectTrigger className="h-10 text-sm">
                 <SelectValue />
@@ -978,12 +1000,18 @@ const SectionEditorCard = React.memo(function SectionEditorCard({
               <SelectContent>
                 <SelectItem value="default">Default Flex</SelectItem>
                 <SelectItem value="full_width">Full Screen Width</SelectItem>
-                <SelectItem value="container_centered">Centered Container</SelectItem>
+                <SelectItem value="container_centered">
+                  Centered Container
+                </SelectItem>
                 <SelectItem value="grid_2_col">2-Column Grid</SelectItem>
                 <SelectItem value="grid_3_col">3-Column Grid</SelectItem>
                 <SelectItem value="grid_4_col">4-Column Grid</SelectItem>
-                <SelectItem value="two_column_split">Two Column Split</SelectItem>
-                <SelectItem value="accent_bg">Accent Background Block</SelectItem>
+                <SelectItem value="two_column_split">
+                  Two Column Split
+                </SelectItem>
+                <SelectItem value="accent_bg">
+                  Accent Background Block
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -991,16 +1019,24 @@ const SectionEditorCard = React.memo(function SectionEditorCard({
           {/* Dynamic Forms depending on blockType */}
           {blockType === "hero_section" && <HeroSectionEditor index={index} />}
           {blockType === "rich_text_jodit" && <RichTextEditor index={index} />}
-          {blockType === "features_grid" && <FeaturesGridEditor index={index} />}
+          {blockType === "features_grid" && (
+            <FeaturesGridEditor index={index} />
+          )}
           {blockType === "gallery_grid" && <GalleryGridEditor index={index} />}
-          {blockType === "faq_accordion" && <FaqAccordionEditor index={index} />}
+          {blockType === "faq_accordion" && (
+            <FaqAccordionEditor index={index} />
+          )}
           {blockType === "cta_banner" && <CtaBannerEditor index={index} />}
-          {blockType === "technical_specs" && <TechnicalSpecsEditor index={index} />}
+          {blockType === "technical_specs" && (
+            <TechnicalSpecsEditor index={index} />
+          )}
           {blockType === "contact_form" && (
             <div className="p-4 border border-dashed rounded-lg bg-muted/20 text-center">
               <Info className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Contact Form renders public contact fields (Name, Email, Message, Service details, Phone). Layout templates determine background themes.
+                Contact Form renders public contact fields (Name, Email,
+                Message, Service details, Phone). Layout templates determine
+                background themes.
               </p>
             </div>
           )}

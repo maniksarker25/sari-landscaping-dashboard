@@ -2,6 +2,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,75 +15,84 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { faqFormSchema, type FaqFormValues } from "@/lib/validations";
-import { useFaqsStore } from "@/lib/content-stores";
-import { generateId } from "@/lib/utils";
-import type { FaqItem } from "@/types";
+import {
+  useAddFaqMutation,
+  useEditFaqMutation,
+  type FaqItemApi,
+} from "@/redux/services/manage/faqApi";
 
 interface FaqFormDialogProps {
   open: boolean;
-  faq?: FaqItem;
+  faq?: FaqItemApi;
   onOpenChange: (open: boolean) => void;
 }
 
-const categoryLabels: Record<FaqFormValues["category"], string> = {
-  general: "General",
-  pools: "Pools",
-  landscaping: "Landscaping",
-  maintenance: "Maintenance",
-  pricing: "Pricing",
-};
-
 export function FaqFormDialog({ open, faq, onOpenChange }: FaqFormDialogProps) {
-  const add = useFaqsStore((s) => s.add);
-  const update = useFaqsStore((s) => s.update);
-  const isEditing = !!faq;
+  const [addFaq, { isLoading: isAdding }] = useAddFaqMutation();
+  const [editFaq, { isLoading: isEditing }] = useEditFaqMutation();
+  const isEditMode = !!faq;
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<FaqFormValues>({
     resolver: zodResolver(faqFormSchema),
-    defaultValues: { question: "", answer: "", category: "general", status: "draft" },
+    defaultValues: { question: "", answer: "", category: "general", status: "published" },
   });
 
   React.useEffect(() => {
     if (open) {
       reset(
         faq
-          ? { question: faq.question, answer: faq.answer, category: faq.category, status: faq.status }
-          : { question: "", answer: "", category: "general", status: "draft" }
+          ? {
+              question: faq.question || "",
+              answer: faq.answer || "",
+              category: (faq.category as any) || "general",
+              status: (faq.status as any) || "published",
+            }
+          : { question: "", answer: "", category: "general", status: "published" }
       );
     }
   }, [open, faq, reset]);
 
-  const status = watch("status");
-  const category = watch("category");
+  const isSubmitting = isAdding || isEditing;
 
   async function onSubmit(values: FaqFormValues) {
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    if (isEditing && faq) {
-      update(faq.id, { ...values, updatedAt: new Date().toISOString() });
-      toast.success("FAQ updated");
-    } else {
-      add({ id: generateId("faq"), ...values, updatedAt: new Date().toISOString() });
-      toast.success("FAQ added");
+    try {
+      if (isEditMode && faq) {
+        const id = faq._id || faq.id;
+        if (!id) return;
+        await editFaq({
+          id,
+          data: {
+            question: values.question,
+            answer: values.answer,
+          },
+        }).unwrap();
+        toast.success("FAQ updated successfully");
+      } else {
+        await addFaq({
+          question: values.question,
+          answer: values.answer,
+        }).unwrap();
+        toast.success("FAQ added successfully");
+      }
+      onOpenChange(false);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Something went wrong.");
     }
-    onOpenChange(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
           <DialogDescription>
-            {isEditing ? "Update this question and answer." : "Add a new question and answer."}
+            {isEditMode ? "Update this question and answer." : "Add a new question and answer."}
           </DialogDescription>
         </DialogHeader>
 
@@ -99,42 +109,18 @@ export function FaqFormDialog({ open, faq, onOpenChange }: FaqFormDialogProps) {
             {errors.answer && <p className="text-xs text-destructive">{errors.answer.message}</p>}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Category</Label>
-              <Select value={category} onValueChange={(value) => setValue("category", value as FaqFormValues["category"])}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(categoryLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={status} onValueChange={(value) => setValue("status", value as "published" | "draft")}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Save changes" : "Add FAQ"}
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isEditMode ? "Save changes" : "Add FAQ"}
             </Button>
           </DialogFooter>
         </form>
