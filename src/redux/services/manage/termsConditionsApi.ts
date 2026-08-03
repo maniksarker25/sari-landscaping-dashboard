@@ -1,6 +1,8 @@
 import baseApis from "../../baseApis";
 import type { ApiResponse, CommonContentItem } from "./types";
 
+export type { CommonContentItem };
+
 export const termsConditionsApi = baseApis.injectEndpoints({
   endpoints: (builder) => ({
     getTermsConditions: builder.query<ApiResponse<CommonContentItem[] | CommonContentItem>, void>({

@@ -1,15 +1,13 @@
 import {
   LayoutDashboard,
   Wrench,
-  FolderKanban,
   Image,
-  Newspaper,
   MessageSquareQuote,
   HelpCircle,
   Mail,
   Settings,
-  Waves,
-  TreePalm,
+  FileText,
+  ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -23,9 +21,10 @@ export const navItems: NavItem[] = [
   { label: "Overview", href: "/", icon: LayoutDashboard },
   { label: "Services", href: "/services", icon: Wrench },
   { label: "Gallery", href: "/gallery", icon: Image },
-  // { label: "Blog", href: "/blog", icon: Newspaper },
   { label: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
   { label: "FAQs", href: "/faqs", icon: HelpCircle },
+  { label: "Terms & Conditions", href: "/terms-conditions", icon: FileText },
+  { label: "Privacy Policy", href: "/privacy-policy", icon: ShieldCheck },
   { label: "Messages", href: "/messages", icon: Mail },
   { label: "Settings", href: "/settings", icon: Settings },
 ];

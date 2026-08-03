@@ -16,7 +16,9 @@ import NotFoundPage from "@/pages/not-found-page";
 import ServicesPage from "@/pages/services/services-page";
 import SettingsPage from "@/pages/settings/settings-page";
 import TestimonialsPage from "@/pages/testimonials/testimonials-page";
-import ServiceBuilderPage from "./pages/services/service-builder-page";
+import TermsConditionsPage from "@/pages/terms-conditions/terms-conditions-page";
+import PrivacyPolicyPage from "@/pages/privacy-policy/privacy-policy-page";
+import ServiceBuilderPage from "@/pages/services/service-builder-page";
 
 export default function App() {
   return (
@@ -41,6 +43,8 @@ export default function App() {
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/testimonials" element={<TestimonialsPage />} />
                 <Route path="/faqs" element={<FaqsPage />} />
+                <Route path="/terms-conditions" element={<TermsConditionsPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
