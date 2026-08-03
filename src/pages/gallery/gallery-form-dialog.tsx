@@ -21,10 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { galleryFormSchema, type GalleryFormValues } from "@/lib/validations";
-import { useGalleryStore } from "@/lib/content-stores";
-import { generateId } from "@/lib/utils";
 import type { GalleryImage } from "@/types";
-import { UploadCloud, Check } from "lucide-react";
+import { UploadCloud } from "lucide-react";
+import {
+  useUploadGalleryMutation,
+  useUpdateGalleryMutation,
+} from "@/redux/services/galleryApis";
 
 interface GalleryFormDialogProps {
   open: boolean;
@@ -42,9 +44,13 @@ export function GalleryFormDialog({
   image,
   onOpenChange,
 }: GalleryFormDialogProps) {
-  const add = useGalleryStore((s) => s.add);
-  const update = useGalleryStore((s) => s.update);
   const isEditing = !!image;
+
+  const [uploadGallery, { isLoading: isUploading }] =
+    useUploadGalleryMutation();
+  const [updateGallery, { isLoading: isUpdating }] = useUpdateGalleryMutation();
+
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
   const {
     register,
@@ -55,15 +61,21 @@ export function GalleryFormDialog({
     formState: { errors, isSubmitting },
   } = useForm<GalleryFormValues>({
     resolver: zodResolver(galleryFormSchema),
-    defaultValues: { src: "", alt: "", category: "pools" },
+    defaultValues: { src: "", alt: "", category: "pools", location: "" },
   });
 
   React.useEffect(() => {
     if (open) {
+      setSelectedFile(null);
       reset(
         image
-          ? { src: image.src, alt: image.alt, category: image.category }
-          : { src: "", alt: "", category: "pools" },
+          ? {
+              src: image.src,
+              alt: image.alt,
+              category: image.category,
+              location: image.location || "",
+            }
+          : { src: "", alt: "", category: "pools", location: "" },
       );
     }
   }, [open, image, reset]);
@@ -78,6 +90,7 @@ export function GalleryFormDialog({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (file: File) => {
+    setSelectedFile(file);
     setUploadProgress(0);
     const reader = new FileReader();
 
@@ -109,20 +122,41 @@ export function GalleryFormDialog({
   };
 
   async function onSubmit(values: GalleryFormValues) {
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    if (isEditing && image) {
-      update(image.id, { ...values, updatedAt: new Date().toISOString() });
-      toast.success("Image updated");
-    } else {
-      add({
-        id: generateId("img"),
-        ...values,
-        updatedAt: new Date().toISOString(),
-      });
-      toast.success("Image added to gallery");
+    try {
+      const categoryFormatted =
+        values.category.charAt(0).toUpperCase() + values.category.slice(1);
+
+      const data = {
+        location: values.location || "",
+        imageAlt: values.alt,
+        category: categoryFormatted,
+      };
+
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data));
+
+      if (selectedFile instanceof File) {
+        formData.append("image", selectedFile);
+      }
+
+      if (isEditing && image) {
+        await updateGallery({ id: image.id, data: formData }).unwrap();
+        toast.success("Image updated successfully");
+      } else {
+        await uploadGallery(formData).unwrap();
+        toast.success("Image added to gallery");
+      }
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error("Gallery submit error:", error);
+      toast.error(
+        error?.data?.message ||
+          "An error occurred while saving the gallery item.",
+      );
     }
-    onOpenChange(false);
   }
+
+  const isPending = isSubmitting || isUploading || isUpdating;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -237,9 +271,10 @@ export function GalleryFormDialog({
                         variant="destructive"
                         size="sm"
                         className="h-7 text-[10px] px-2.5"
-                        onClick={() =>
-                          setValue("src", "", { shouldValidate: true })
-                        }
+                        onClick={() => {
+                          setValue("src", "", { shouldValidate: true });
+                          setSelectedFile(null);
+                        }}
                       >
                         Remove
                       </Button>
@@ -285,6 +320,20 @@ export function GalleryFormDialog({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Input
+              id="location"
+              placeholder="e.g. Dubai"
+              {...register("location")}
+            />
+            {errors.location && (
+              <p className="text-xs text-destructive">
+                {errors.location.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label>Service</Label>
             <Select
               value={category}
@@ -313,8 +362,12 @@ export function GalleryFormDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Save changes" : "Add image"}
+            <Button type="submit" disabled={isPending}>
+              {isPending
+                ? "Saving..."
+                : isEditing
+                  ? "Save changes"
+                  : "Add image"}
             </Button>
           </DialogFooter>
         </form>

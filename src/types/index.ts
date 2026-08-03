@@ -122,6 +122,7 @@ export interface GalleryImage {
   src: string;
   alt: string;
   category: "pools" | "landscaping";
+  location?: string;
   updatedAt: string;
 }
 

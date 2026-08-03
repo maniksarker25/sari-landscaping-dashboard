@@ -123,6 +123,7 @@ export const galleryFormSchema = z.object({
   src: z.string().min(1, "Image is required."),
   alt: z.string().min(3, "Add descriptive alt text."),
   category: z.enum(["pools", "landscaping"]),
+  location: z.string().optional(),
 });
 export type GalleryFormValues = z.infer<typeof galleryFormSchema>;
 

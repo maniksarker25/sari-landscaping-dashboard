@@ -48,7 +48,7 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "devsbokul@gmail.com", password: "SuperAdmin@123" },
+    defaultValues: { email: "superadmin@dfl.com", password: "SuperAdmin@123" },
   });
 
   if (isAuthenticated) {

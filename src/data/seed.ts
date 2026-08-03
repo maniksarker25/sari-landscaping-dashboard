@@ -256,50 +256,7 @@ export const seedProjects: Project[] = [
   },
 ];
 
-export const seedGallery: GalleryImage[] = [
-  {
-    id: "g1",
-    category: "pools",
-    src: "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=600&auto=format&fit=crop",
-    alt: "Infinity-edge pool at dusk",
-    updatedAt: "2026-06-01T10:00:00Z",
-  },
-  {
-    id: "g2",
-    category: "landscaping",
-    src: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=600&auto=format&fit=crop",
-    alt: "Landscaped garden pathway",
-    updatedAt: "2026-06-02T10:00:00Z",
-  },
-  {
-    id: "g3",
-    category: "pools",
-    src: "https://images.unsplash.com/photo-1600210492493-0946911123ea?q=80&w=600&auto=format&fit=crop",
-    alt: "Outdoor kitchen and pergola",
-    updatedAt: "2026-06-03T10:00:00Z",
-  },
-  {
-    id: "g4",
-    category: "landscaping",
-    src: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=600&auto=format&fit=crop",
-    alt: "Garden path lighting at night",
-    updatedAt: "2026-06-04T10:00:00Z",
-  },
-  {
-    id: "g5",
-    category: "pools",
-    src: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=600&auto=format&fit=crop",
-    alt: "Renovated pool with new tiling",
-    updatedAt: "2026-06-05T10:00:00Z",
-  },
-  {
-    id: "g6",
-    category: "landscaping",
-    src: "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?q=80&w=600&auto=format&fit=crop",
-    alt: "Villa pool with lake backdrop",
-    updatedAt: "2026-06-06T10:00:00Z",
-  },
-];
+export const seedGallery: GalleryImage[] = [];
 
 export const seedBlogPosts: BlogPost[] = [
   {
