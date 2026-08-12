@@ -25,7 +25,7 @@ export function useServicesFilter(apiServices?: Service[]) {
     return {
       all: items.length,
       landscaping: items.filter(
-        (s) => s.category?.toLowerCase() === "landscaping"
+        (s) => s.category?.toLowerCase() === "landscaping",
       ).length,
       pools: items.filter((s) => s.category?.toLowerCase() === "pools").length,
     };
@@ -55,9 +55,9 @@ export function useServicesFilter(apiServices?: Service[]) {
   }, [items, activeTab, search]);
 
   function handleDelete(service: Service) {
-    remove(service.id);
+    remove(service?._id);
     toast.success(`"${service.title}" deleted`);
-    if (deleteTarget?.id === service.id) {
+    if (deleteTarget?.id === service?._id) {
       setDeleteTarget(null);
     }
   }

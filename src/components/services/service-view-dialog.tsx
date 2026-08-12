@@ -276,7 +276,7 @@ export function ServiceViewDialog({
                 size="sm"
                 onClick={() => {
                   onOpenChange(false);
-                  navigate(`/services/edit/${service.id}`);
+                  navigate(`/services/edit/${service?._id}`);
                 }}
                 className="gap-1.5"
               >
