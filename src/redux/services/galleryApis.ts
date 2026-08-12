@@ -35,14 +35,16 @@ export interface GetGalleryQueryParams {
 
 export const galleryApi = baseApis.injectEndpoints({
   endpoints: (builder) => ({
-    getGallery: builder.query<GetGalleryResponse, GetGalleryQueryParams | void>({
-      query: (params) => ({
-        url: "/gallery/get-all",
-        method: "GET",
-        params: params || {},
-      }),
-      providesTags: ["gallery"] as const,
-    }),
+    getGallery: builder.query<GetGalleryResponse, GetGalleryQueryParams | void>(
+      {
+        query: (params) => ({
+          url: "/gallery/get-all",
+          method: "GET",
+          params: params || {},
+        }),
+        providesTags: ["gallery"] as const,
+      },
+    ),
     uploadGallery: builder.mutation<any, FormData>({
       query: (formData) => ({
         url: "/gallery/create",
@@ -51,7 +53,10 @@ export const galleryApi = baseApis.injectEndpoints({
       }),
       invalidatesTags: ["gallery"] as const,
     }),
-    updateGallery: builder.mutation<any, { id: string; data: FormData | Record<string, any> }>({
+    updateGallery: builder.mutation<
+      any,
+      { id: string; data: FormData | Record<string, any> }
+    >({
       query: ({ id, data }) => ({
         url: `/gallery/update/${id}`,
         method: "PATCH",
