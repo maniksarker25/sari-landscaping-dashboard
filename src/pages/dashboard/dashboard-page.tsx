@@ -6,6 +6,7 @@ import {
   Mail,
   MessageSquareQuote,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -20,6 +21,7 @@ import {
 } from "recharts";
 import { PageHeader } from "@/components/common/page-header";
 import { StatCard } from "@/components/common/stat-card";
+import { MessageStatusBadge } from "@/components/common/status-badge";
 import {
   Card,
   CardContent,
@@ -27,7 +29,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
 import {
@@ -36,6 +38,8 @@ import {
   useTestimonialsStore,
 } from "@/lib/content-stores";
 import { useMessagesStore } from "@/lib/messages-store";
+import { useGetTestimonialsQuery } from "@/redux/services/testimonialApis";
+import { useGetContactsQuery } from "@/redux/services/messageApis";
 
 const inquiryTrend = [
   { month: "Feb", inquiries: 14 },
@@ -52,22 +56,59 @@ const serviceInterest = [
 ];
 
 export default function DashboardPage() {
+  // Fetch live API data for Testimonials & Contact Messages
+  const { data: testimonialsApi } = useGetTestimonialsQuery();
+  const { data: contactsApi, isLoading: isContactsLoading } = useGetContactsQuery({
+    page: 1,
+    limit: 5,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+
   const services = useServicesStore((s) => s.items);
   const projects = useProjectsStore((s) => s.items);
   const testimonials = useTestimonialsStore((s) => s.items);
-  const messages = useMessagesStore((s) => s.items);
+  const fallbackMessages = useMessagesStore((s) => s.items);
 
-  const newMessages = useMemo(
-    () => messages.filter((m) => m.status === "new"),
-    [messages],
-  );
-  const recentMessages = useMemo(
-    () =>
-      [...messages]
-        .sort((a, b) => +new Date(b.receivedAt) - +new Date(a.receivedAt))
-        .slice(0, 5),
-    [messages],
-  );
+  // Testimonials count
+  const testimonialsCount = useMemo(() => {
+    if (testimonialsApi && Array.isArray(testimonialsApi.data)) {
+      return testimonialsApi.data.length;
+    } else if (Array.isArray(testimonialsApi)) {
+      return (testimonialsApi as any[]).length;
+    }
+    return testimonials.length;
+  }, [testimonialsApi, testimonials]);
+
+  // Recent 5 contact messages from API or fallback
+  const recentMessages = useMemo(() => {
+    const apiData = contactsApi?.data;
+    if (Array.isArray(apiData)) {
+      return apiData.slice(0, 5).map((item) => ({
+        id: item._id || item.id || "",
+        name: item.name,
+        email: item.email,
+        phone: item.phone || "",
+        service: item.interestedService || item.interestedCategory || "General Inquiry",
+        message: item.message,
+        status: item.status || "New",
+        receivedAt: item.createdAt || item.updatedAt || new Date().toISOString(),
+      }));
+    }
+    return [...fallbackMessages]
+      .sort((a, b) => +new Date(b.receivedAt) - +new Date(a.receivedAt))
+      .slice(0, 5);
+  }, [contactsApi, fallbackMessages]);
+
+  // New messages count
+  const newMessagesCount = useMemo(() => {
+    if (contactsApi && Array.isArray(contactsApi.data)) {
+      return contactsApi.data.filter(
+        (c) => String(c.status).toLowerCase() === "new"
+      ).length;
+    }
+    return fallbackMessages.filter((m) => String(m.status).toLowerCase() === "new").length;
+  }, [contactsApi, fallbackMessages]);
 
   return (
     <div className="space-y-8">
@@ -85,18 +126,18 @@ export default function DashboardPage() {
         <StatCard
           label="Published Projects"
           value={String(
-            projects.filter((p) => p.status === "published").length,
+            projects.filter((p) => p.status === "published").length
           )}
           icon={FolderKanban}
         />
         <StatCard
           label="New Messages"
-          value={String(newMessages.length)}
+          value={String(newMessagesCount)}
           icon={Mail}
         />
         <StatCard
           label="Testimonials"
-          value={String(testimonials.length)}
+          value={String(testimonialsCount)}
           icon={MessageSquareQuote}
         />
       </div>
@@ -230,30 +271,50 @@ export default function DashboardPage() {
           </Button>
         </CardHeader>
         <CardContent className="space-y-1">
-          {recentMessages.map((message) => (
-            <Link
-              key={message.id}
-              to="/messages"
-              className="flex items-center justify-between gap-4 rounded-md px-2 py-3 transition-colors hover:bg-muted/50"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{message.name}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {message.message}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                <span className="hidden text-xs text-muted-foreground sm:inline">
-                  {formatDateTime(message.receivedAt)}
-                </span>
-                <Badge
-                  variant={message.status === "new" ? "warning" : "outline"}
+          {isContactsLoading ? (
+            <div className="space-y-2 py-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-4 rounded-md px-2 py-3"
                 >
-                  {message.status}
-                </Badge>
-              </div>
-            </Link>
-          ))}
+                  <div className="space-y-1.5 min-w-0 flex-1">
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-3.5 w-3/4" />
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-5 w-14 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : recentMessages.length === 0 ? (
+            <p className="py-6 text-center text-xs text-muted-foreground">
+              No recent contact messages found.
+            </p>
+          ) : (
+            recentMessages.map((message) => (
+              <Link
+                key={message.id}
+                to="/messages"
+                className="flex items-center justify-between gap-4 rounded-md px-2 py-3 transition-colors hover:bg-muted/50"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{message.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {message.message}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="hidden text-xs text-muted-foreground sm:inline">
+                    {formatDateTime(message.receivedAt)}
+                  </span>
+                  <MessageStatusBadge status={message.status} />
+                </div>
+              </Link>
+            ))
+          )}
         </CardContent>
       </Card>
     </div>

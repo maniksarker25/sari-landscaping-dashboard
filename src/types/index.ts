@@ -141,13 +141,17 @@ export interface BlogPost {
 }
 
 export interface Testimonial {
+  _id?: string;
   id: string;
   name: string;
-  role: string;
+  role?: string;
+  roleOrLocation?: string;
   quote: string;
   rating: number;
-  status: ContentStatus;
-  updatedAt: string;
+  image?: string;
+  status: ContentStatus | "Published" | "Draft";
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type FaqCategory =
@@ -166,17 +170,30 @@ export interface FaqItem {
   updatedAt: string;
 }
 
-export type MessageStatus = "new" | "read" | "replied" | "archived";
+export type MessageStatus =
+  | "new"
+  | "read"
+  | "replied"
+  | "archived"
+  | "New"
+  | "Read"
+  | "Replied"
+  | "Archived";
 
 export interface ContactMessage {
+  _id?: string;
   id: string;
   name: string;
   email: string;
   phone?: string;
   service: string;
+  interestedCategory?: string;
+  interestedService?: string;
   message: string;
   status: MessageStatus;
   receivedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AdminUser {

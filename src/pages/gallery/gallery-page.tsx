@@ -18,6 +18,7 @@ import {
 import { PageHeader } from "@/components/common/page-header";
 import { EmptyState } from "@/components/common/empty-state";
 import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
+import { Pagination } from "@/components/common/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -81,7 +82,7 @@ export default function GalleryPage() {
     isFetching,
   } = useGetGalleryQuery(queryParams);
 
-  const [deleteGallery] = useDeleteGalleryMutation();
+  const [deleteGallery, { isLoading: isDeleting }] = useDeleteGalleryMutation();
 
   const [formState, setFormState] = React.useState<{
     open: boolean;
@@ -348,38 +349,13 @@ export default function GalleryPage() {
       )}
 
       {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-border pt-4 text-xs">
-          <p className="text-muted-foreground">
-            Page <span className="font-semibold text-foreground">{page}</span>{" "}
-            of{" "}
-            <span className="font-semibold text-foreground">{totalPages}</span>
-            {meta?.total !== undefined && (
-              <span className="ml-1">({meta.total} items total)</span>
-            )}
-          </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page <= 1 || isFetching}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="h-8 text-xs"
-            >
-              <ChevronLeft className="h-3.5 w-3.5 mr-1" /> Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page >= totalPages || isFetching}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="h-8 text-xs"
-            >
-              Next <ChevronRight className="h-3.5 w-3.5 ml-1" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={meta?.total}
+        onPageChange={setPage}
+        disabled={isFetching}
+      />
 
       {/* Form & Delete Dialogs */}
       <GalleryFormDialog
@@ -390,10 +366,11 @@ export default function GalleryPage() {
 
       <ConfirmDeleteDialog
         open={!!deleteTarget}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        onOpenChange={(open) => !open && !isDeleting && setDeleteTarget(null)}
         title="Delete this image?"
         description="This will permanently remove the image from your gallery."
         onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        loading={isDeleting}
       />
     </div>
   );

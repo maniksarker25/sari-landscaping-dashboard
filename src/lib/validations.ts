@@ -144,10 +144,12 @@ export type BlogFormValues = z.infer<typeof blogFormSchema>;
 
 export const testimonialFormSchema = z.object({
   name: z.string().min(2, "Enter a name."),
-  role: z.string().min(2, "Enter a role or location."),
-  quote: z.string().min(10, "Quote should be at least 10 characters."),
-  rating: z.coerce.number().min(1).max(5),
-  status: z.enum(["published", "draft"]),
+  role: z.string().optional(),
+  roleOrLocation: z.string().optional(),
+  quote: z.string().min(5, "Quote should be at least 5 characters."),
+  rating: z.coerce.number().min(0.5, "Rating must be at least 0.5").max(5, "Rating cannot exceed 5"),
+  status: z.enum(["published", "draft", "Published", "Draft"]).default("Published"),
+  image: z.any().optional(),
 });
 export type TestimonialFormValues = z.infer<typeof testimonialFormSchema>;
 

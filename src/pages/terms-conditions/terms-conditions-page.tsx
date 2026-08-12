@@ -2,7 +2,13 @@ import * as React from "react";
 import { toast } from "sonner";
 import { Loader2, Save, FileText, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/common/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,9 +21,15 @@ import {
 } from "@/redux/services/manage/termsConditionsApi";
 
 export default function TermsConditionsPage() {
-  const { data: response, isLoading, isError, refetch } = useGetTermsConditionsQuery();
+  const {
+    data: response,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetTermsConditionsQuery();
   const [addTerms, { isLoading: isAdding }] = useAddTermsConditionsMutation();
-  const [editTerms, { isLoading: isEditing }] = useEditTermsConditionsMutation();
+  const [editTerms, { isLoading: isEditing }] =
+    useEditTermsConditionsMutation();
 
   const [title, setTitle] = React.useState("Terms & Conditions");
   const [content, setContent] = React.useState("");
@@ -69,7 +81,7 @@ export default function TermsConditionsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+    <div className="space-y-6 pb-12">
       {/* Fixed / Sticky Top Action Bar */}
       <div className="sticky top-0 z-20 -mx-6 px-6 py-4 bg-background/95 backdrop-blur border-b border-border/80 shadow-xs transition-all">
         <PageHeader
@@ -83,7 +95,9 @@ export default function TermsConditionsPage() {
                 onClick={() => refetch()}
                 disabled={isLoading || isSaving}
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                />
                 Refresh
               </Button>
               <Button
@@ -118,7 +132,9 @@ export default function TermsConditionsPage() {
         </Card>
       ) : isError ? (
         <Card className="p-8 border-destructive/20 bg-destructive/5 text-center space-y-3">
-          <p className="text-destructive font-medium">Failed to load content from the server.</p>
+          <p className="text-destructive font-medium">
+            Failed to load content from the server.
+          </p>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             Try Again
           </Button>
@@ -130,7 +146,9 @@ export default function TermsConditionsPage() {
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
                 <div>
-                  <CardTitle className="text-lg">Terms & Conditions Details</CardTitle>
+                  <CardTitle className="text-lg">
+                    Terms & Conditions Details
+                  </CardTitle>
                   <CardDescription>
                     Configure the document header title and body text below.
                   </CardDescription>
@@ -140,7 +158,10 @@ export default function TermsConditionsPage() {
             <CardContent className="space-y-5 pt-5">
               {/* Document Title */}
               <div className="space-y-2">
-                <Label htmlFor="terms-title" className="text-xs font-semibold text-foreground">
+                <Label
+                  htmlFor="terms-title"
+                  className="text-xs font-semibold text-foreground"
+                >
                   Document Title
                 </Label>
                 <Input
@@ -158,7 +179,11 @@ export default function TermsConditionsPage() {
                 <Label className="text-xs font-semibold text-foreground">
                   Document Body Content
                 </Label>
-                <Tiptap content={content} setContent={setContent} placeholder="Write terms and conditions content here..." />
+                <Tiptap
+                  content={content}
+                  setContent={setContent}
+                  placeholder="Write terms and conditions content here..."
+                />
               </div>
             </CardContent>
           </Card>
