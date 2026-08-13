@@ -55,9 +55,10 @@ export function useServicesFilter(apiServices?: Service[]) {
   }, [items, activeTab, search]);
 
   function handleDelete(service: Service) {
-    remove(service?._id);
+    if (!service?._id) return;
+    remove(service._id);
     toast.success(`"${service.title}" deleted`);
-    if (deleteTarget?.id === service?._id) {
+    if (deleteTarget?.id === service._id) {
       setDeleteTarget(null);
     }
   }
