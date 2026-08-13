@@ -30,6 +30,7 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/set-new-password" element={<ResetPasswordPage />} />
+
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route path="/" element={<DashboardPage />} />
@@ -43,7 +44,10 @@ export default function App() {
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/testimonials" element={<TestimonialsPage />} />
                 <Route path="/faqs" element={<FaqsPage />} />
-                <Route path="/terms-conditions" element={<TermsConditionsPage />} />
+                <Route
+                  path="/terms-conditions"
+                  element={<TermsConditionsPage />}
+                />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
