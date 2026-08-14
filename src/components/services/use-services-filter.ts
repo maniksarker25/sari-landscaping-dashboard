@@ -48,7 +48,7 @@ export function useServicesFilter(apiServices?: Service[]) {
       return true;
     });
   }, [items, activeTab, search]);
-
+  // okey
   function handleDelete(service: Service) {
     remove(service?._id as string);
     toast.success(`"${service.title}" deleted`);
