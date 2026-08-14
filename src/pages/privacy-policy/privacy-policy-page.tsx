@@ -31,7 +31,6 @@ export default function PrivacyPolicyPage() {
   const [editPrivacy, { isLoading: isEditing }] =
     useEditPrivacyPolicyMutation();
 
-  const [title, setTitle] = React.useState("Privacy Policy");
   const [content, setContent] = React.useState("");
   const [docId, setDocId] = React.useState<string | null>(null);
 
@@ -42,7 +41,6 @@ export default function PrivacyPolicyPage() {
         ? response.data[0]
         : response.data;
       if (item) {
-        setTitle(item.title || "Privacy Policy");
         setContent(item.content || "");
         setDocId(item._id || item.id || null);
       }
@@ -53,20 +51,19 @@ export default function PrivacyPolicyPage() {
 
   async function handleSave(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    if (!title.trim()) {
-      toast.error("Please enter a title.");
-      return;
-    }
 
     try {
       if (docId) {
         await editPrivacy({
           id: docId,
-          data: { title, content },
+          data: { title: "privacy-title", content },
         }).unwrap();
         toast.success("Privacy Policy updated successfully!");
       } else {
-        const res = await addPrivacy({ title, content }).unwrap();
+        const res = await addPrivacy({
+          title: "privacy-title",
+          content,
+        }).unwrap();
         if (res?.data) {
           const newItem = Array.isArray(res.data) ? res.data[0] : res.data;
           if (newItem?._id || newItem?.id) {
@@ -142,38 +139,7 @@ export default function PrivacyPolicyPage() {
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
           <Card className="shadow-sm border-border">
-            <CardHeader className="pb-4 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-                <div>
-                  <CardTitle className="text-lg">
-                    Privacy Policy Details
-                  </CardTitle>
-                  <CardDescription>
-                    Configure the document header title and body text below.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
             <CardContent className="space-y-5 pt-5">
-              {/* Document Title */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="privacy-title"
-                  className="text-xs font-semibold text-foreground"
-                >
-                  Document Title
-                </Label>
-                <Input
-                  id="privacy-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Privacy Policy"
-                  className="max-w-xl"
-                  required
-                />
-              </div>
-
               {/* Rich Text Editor */}
               <div className="space-y-2">
                 <Label className="text-xs font-semibold text-foreground">
