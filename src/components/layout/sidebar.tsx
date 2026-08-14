@@ -19,9 +19,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <Waves className="h-[18px] w-[18px]" />
         </span>
-        <span className="text-sm font-semibold tracking-tight">
-          Aurelia Admin
-        </span>
+        <span className="text-sm font-semibold tracking-tight">DFL</span>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 scrollbar-thin">

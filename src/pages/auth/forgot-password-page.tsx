@@ -3,14 +3,24 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Waves, ArrowLeft, Mail, CheckCircle2, KeyRound } from "lucide-react";
+import {
+  Loader2,
+  Waves,
+  ArrowLeft,
+  Mail,
+  CheckCircle2,
+  KeyRound,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().min(1, "Email is required.").email("Please enter a valid email address."),
+  email: z
+    .string()
+    .min(1, "Email is required.")
+    .email("Please enter a valid email address."),
 });
 
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
@@ -52,11 +62,15 @@ export default function ForgotPasswordPage() {
     //   body: JSON.stringify(values),
     // });
     // =========================================================================
-    console.log("%c[API Integration Ready] Forgot Password Request:", "color: #10b981; font-weight: bold; font-size: 13px;", {
-      action: "FORGOT_PASSWORD_REQUEST",
-      email: values.email,
-      timestamp: new Date().toISOString(),
-    });
+    console.log(
+      "%c[API Integration Ready] Forgot Password Request:",
+      "color: #10b981; font-weight: bold; font-size: 13px;",
+      {
+        action: "FORGOT_PASSWORD_REQUEST",
+        email: values.email,
+        timestamp: new Date().toISOString(),
+      },
+    );
 
     toast.success("Password reset instructions sent!");
     setSubmittedEmail(values.email);
@@ -67,11 +81,15 @@ export default function ForgotPasswordPage() {
   function handleResend() {
     if (resendCooldown > 0) return;
 
-    console.log("%c[API Integration Ready] Resend Password Reset Email:", "color: #3b82f6; font-weight: bold; font-size: 13px;", {
-      action: "RESEND_RESET_EMAIL",
-      email: submittedEmail,
-      timestamp: new Date().toISOString(),
-    });
+    console.log(
+      "%c[API Integration Ready] Resend Password Reset Email:",
+      "color: #3b82f6; font-weight: bold; font-size: 13px;",
+      {
+        action: "RESEND_RESET_EMAIL",
+        email: submittedEmail,
+        timestamp: new Date().toISOString(),
+      },
+    );
 
     toast.info("A new reset email has been dispatched.");
     setResendCooldown(30);
@@ -85,16 +103,22 @@ export default function ForgotPasswordPage() {
           <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
             <Waves className="h-6 w-6" />
           </span>
-          <h1 className="mt-4 text-xl font-semibold tracking-tight">Aurelia Admin</h1>
+          <h1 className="mt-4 text-xl font-semibold tracking-tight">DFL</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isSubmitted ? "Check your email inbox" : "Reset your account password"}
+            {isSubmitted
+              ? "Check your email inbox"
+              : "Reset your account password"}
           </p>
         </div>
 
         {/* Main Card */}
         <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
           {!isSubmitted ? (
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-4"
+            >
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
@@ -115,10 +139,16 @@ export default function ForgotPasswordPage() {
               </div>
 
               <p className="text-xs text-muted-foreground">
-                Enter the email address associated with your account and we&apos;ll send you a password reset link.
+                Enter the email address associated with your account and
+                we&apos;ll send you a password reset link.
               </p>
 
-              <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -140,7 +170,9 @@ export default function ForgotPasswordPage() {
                 <p className="text-xs text-muted-foreground">
                   We sent a password reset link to:
                   <br />
-                  <strong className="font-medium text-foreground">{submittedEmail}</strong>
+                  <strong className="font-medium text-foreground">
+                    {submittedEmail}
+                  </strong>
                 </p>
               </div>
 
@@ -156,7 +188,9 @@ export default function ForgotPasswordPage() {
                   onClick={handleResend}
                   disabled={resendCooldown > 0}
                 >
-                  {resendCooldown > 0 ? `Resend email in ${resendCooldown}s` : "Resend password reset email"}
+                  {resendCooldown > 0
+                    ? `Resend email in ${resendCooldown}s`
+                    : "Resend password reset email"}
                 </Button>
 
                 {/* Direct action link to facilitate testing the Set New Password flow */}
@@ -164,7 +198,11 @@ export default function ForgotPasswordPage() {
                   type="button"
                   variant="secondary"
                   className="w-full text-xs text-primary"
-                  onClick={() => navigate(`/reset-password?email=${encodeURIComponent(submittedEmail)}&token=demo-reset-token-123`)}
+                  onClick={() =>
+                    navigate(
+                      `/reset-password?email=${encodeURIComponent(submittedEmail)}&token=demo-reset-token-123`,
+                    )
+                  }
                 >
                   <KeyRound className="mr-1.5 h-3.5 w-3.5" />
                   Proceed to Set New Password (Demo)

@@ -177,6 +177,22 @@ export const settingsFormSchema = z.object({
 });
 export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
+export const legalInfoSchema = z.object({
+  siteName: z.string().min(1, "Site name is required."),
+  tagline: z.string().min(1, "Tagline is required."),
+  companyName: z.string().min(1, "Company name is required."),
+  businessType: z.string().min(1, "Business type is required."),
+  registeredAddress: z.string().min(1, "Registered address is required."),
+  contactEmail: z.string().email("Enter a valid email address."),
+  contactPhone: z.string().min(1, "Contact phone is required."),
+  jurisdiction: z.string().min(1, "Jurisdiction is required."),
+  officialWebsite: z.string().min(1, "Official website is required."),
+  facebookLink: z.string().optional(),
+  instagramLink: z.string().optional(),
+  linkedinLink: z.string().optional(),
+});
+export type LegalInfoFormValues = z.infer<typeof legalInfoSchema>;
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required."),

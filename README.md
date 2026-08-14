@@ -1,4 +1,4 @@
-# Aurelia Admin — Content Management Dashboard
+# DFL — Content Management Dashboard
 
 A production-grade admin dashboard for managing the Aurelia Outdoor website
 content: services, projects, gallery images, blog posts, testimonials, FAQs,
@@ -25,6 +25,7 @@ npm run dev
 Open http://localhost:5173.
 
 **Demo login:**
+
 - Email: `admin@aureliaoutdoor.com`
 - Password: `admin123`
 
@@ -67,6 +68,7 @@ across the whole dashboard and is saved to `localStorage`, so it persists
 across refreshes.
 
 **How it works under the hood:**
+
 - `src/lib/theme.ts` — converts a hex color to an HSL triple and computes a
   readable foreground (black or white) via a YIQ brightness check
 - `src/lib/theme-store.ts` — Zustand store holding the current color + light/dark mode
@@ -88,6 +90,7 @@ is seeded from `src/data/seed.ts` and stored in `localStorage` via Zustand's
 your browser.
 
 To connect this to a real backend:
+
 1. Replace the store actions in `src/lib/content-stores.ts` / `messages-store.ts`
    with API calls (e.g. `fetch`/`axios` to your REST or GraphQL API)
 2. Keep the same store shape (`items`, `add`, `update`, `remove`) so the UI

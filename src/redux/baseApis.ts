@@ -26,6 +26,7 @@ const baseApis = createApi({
     "terms-conditions",
     "testimonial",
     "contact",
+    "legal-info",
   ],
   endpoints: () => ({}),
 });
