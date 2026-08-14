@@ -30,8 +30,6 @@ export default function TermsConditionsPage() {
   const [addTerms, { isLoading: isAdding }] = useAddTermsConditionsMutation();
   const [editTerms, { isLoading: isEditing }] =
     useEditTermsConditionsMutation();
-
-  const [title, setTitle] = React.useState("Terms & Conditions");
   const [content, setContent] = React.useState("");
   const [docId, setDocId] = React.useState<string | null>(null);
 
@@ -42,7 +40,6 @@ export default function TermsConditionsPage() {
         ? response.data[0]
         : response.data;
       if (item) {
-        setTitle(item.title || "Terms & Conditions");
         setContent(item.content || "");
         setDocId(item._id || item.id || null);
       }
@@ -53,20 +50,19 @@ export default function TermsConditionsPage() {
 
   async function handleSave(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    if (!title.trim()) {
-      toast.error("Please enter a title.");
-      return;
-    }
 
     try {
       if (docId) {
         await editTerms({
           id: docId,
-          data: { title, content },
+          data: { title: "terms-conditions-title", content },
         }).unwrap();
         toast.success("Terms & Conditions updated successfully!");
       } else {
-        const res = await addTerms({ title, content }).unwrap();
+        const res = await addTerms({
+          title: "terms-conditions-title",
+          content,
+        }).unwrap();
         if (res?.data) {
           const newItem = Array.isArray(res.data) ? res.data[0] : res.data;
           if (newItem?._id || newItem?.id) {
@@ -142,38 +138,7 @@ export default function TermsConditionsPage() {
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
           <Card className="shadow-sm border-border">
-            <CardHeader className="pb-4 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                <div>
-                  <CardTitle className="text-lg">
-                    Terms & Conditions Details
-                  </CardTitle>
-                  <CardDescription>
-                    Configure the document header title and body text below.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
             <CardContent className="space-y-5 pt-5">
-              {/* Document Title */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="terms-title"
-                  className="text-xs font-semibold text-foreground"
-                >
-                  Document Title
-                </Label>
-                <Input
-                  id="terms-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Terms & Conditions"
-                  className="max-w-xl"
-                  required
-                />
-              </div>
-
               {/* Rich Text Editor */}
               <div className="space-y-2">
                 <Label className="text-xs font-semibold text-foreground">

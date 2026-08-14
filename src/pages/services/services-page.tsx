@@ -25,8 +25,6 @@ export default function ServicesPage() {
   // Fetch services from RTK Query server API
   const { data: responseData, isLoading, isFetching } = useGetServicesQuery({});
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
-  const [publishService] = usePublishServiceMutation();
-  const [saveDraftService] = useSaveDraftServiceMutation();
 
   const apiServices: Service[] | undefined = React.useMemo(() => {
     const data = responseData?.data;
@@ -67,6 +65,16 @@ export default function ServicesPage() {
     }
   };
 
+  if (isDeleting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm">Deleting service...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <PageHeader
@@ -106,7 +114,9 @@ export default function ServicesPage() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-16 space-y-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">Loading services...</p>
+          <p className="text-sm font-medium text-muted-foreground">
+            Loading services...
+          </p>
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
@@ -150,4 +160,3 @@ export default function ServicesPage() {
     </div>
   );
 }
-
