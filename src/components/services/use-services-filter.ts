@@ -1,7 +1,7 @@
-import * as React from "react";
-import { toast } from "sonner";
 import { useServicesStore } from "@/lib/content-stores";
 import type { Service } from "@/types";
+import * as React from "react";
+import { toast } from "sonner";
 
 export type ServiceCategoryTab = "all" | "Landscaping" | "Pools";
 
@@ -24,9 +24,7 @@ export function useServicesFilter(apiServices?: Service[]) {
   const counts = React.useMemo(() => {
     return {
       all: items.length,
-      landscaping: items.filter(
-        (s) => s.category?.toLowerCase() === "landscaping",
-      ).length,
+      landscaping: items.filter((s) => s.category?.toLowerCase() === "landscaping").length,
       pools: items.filter((s) => s.category?.toLowerCase() === "pools").length,
     };
   }, [items]);
@@ -34,10 +32,7 @@ export function useServicesFilter(apiServices?: Service[]) {
   const filtered = React.useMemo(() => {
     return items.filter((service) => {
       // Category tab filtering
-      if (
-        activeTab !== "all" &&
-        service.category?.toLowerCase() !== activeTab.toLowerCase()
-      ) {
+      if (activeTab !== "all" && service.category?.toLowerCase() !== activeTab.toLowerCase()) {
         return false;
       }
 
@@ -53,10 +48,9 @@ export function useServicesFilter(apiServices?: Service[]) {
       return true;
     });
   }, [items, activeTab, search]);
-
+  // okey
   function handleDelete(service: Service) {
-    if (!service?._id) return;
-    remove(service._id);
+    remove(service?._id as string);
     toast.success(`"${service.title}" deleted`);
     if (deleteTarget?.id === service._id) {
       setDeleteTarget(null);
