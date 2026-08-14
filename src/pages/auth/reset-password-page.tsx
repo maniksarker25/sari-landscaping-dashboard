@@ -3,7 +3,18 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Waves, Eye, EyeOff, CheckCircle2, Lock, ArrowLeft, ShieldCheck, Check, X } from "lucide-react";
+import {
+  Loader2,
+  Waves,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Lock,
+  ArrowLeft,
+  ShieldCheck,
+  Check,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,7 +89,7 @@ export default function ResetPasswordPage() {
     console.log(
       "%c[API Integration Ready] Set New Password Submitted:",
       "color: #10b981; font-weight: bold; font-size: 13px;",
-      payload
+      payload,
     );
 
     toast.success("Password reset successfully!");
@@ -93,7 +104,7 @@ export default function ResetPasswordPage() {
           <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
             <Waves className="h-6 w-6" />
           </span>
-          <h1 className="mt-4 text-xl font-semibold tracking-tight">Aurelia Admin</h1>
+          <h1 className="mt-4 text-xl font-semibold tracking-tight">DFL</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {isSuccess ? "Password updated" : "Set your new password"}
           </p>
@@ -102,10 +113,17 @@ export default function ResetPasswordPage() {
         {/* Main Card */}
         <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
           {!isSuccess ? (
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-4"
+            >
               {userEmail && (
                 <div className="rounded-md bg-muted/50 p-2.5 text-xs text-muted-foreground">
-                  Resetting password for: <strong className="font-medium text-foreground">{userEmail}</strong>
+                  Resetting password for:{" "}
+                  <strong className="font-medium text-foreground">
+                    {userEmail}
+                  </strong>
                 </div>
               )}
 
@@ -125,9 +143,15 @@ export default function ResetPasswordPage() {
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
                 {errors.password && (
@@ -153,9 +177,17 @@ export default function ResetPasswordPage() {
                     type="button"
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                    aria-label={
+                      showConfirmPassword
+                        ? "Hide confirm password"
+                        : "Show confirm password"
+                    }
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
                 {errors.confirmPassword && (
@@ -167,28 +199,59 @@ export default function ResetPasswordPage() {
 
               {/* Password Requirements Checklist */}
               <div className="rounded-md border border-border bg-muted/30 p-3 space-y-1.5 text-xs">
-                <p className="font-medium text-foreground mb-1">Password Requirements:</p>
+                <p className="font-medium text-foreground mb-1">
+                  Password Requirements:
+                </p>
                 <div className="grid grid-cols-1 gap-1 text-muted-foreground">
-                  <span className={`flex items-center gap-1.5 ${hasMinLength ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}>
-                    {hasMinLength ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5 opacity-40" />}
+                  <span
+                    className={`flex items-center gap-1.5 ${hasMinLength ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}
+                  >
+                    {hasMinLength ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <X className="h-3.5 w-3.5 opacity-40" />
+                    )}
                     At least 8 characters
                   </span>
-                  <span className={`flex items-center gap-1.5 ${hasUppercase ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}>
-                    {hasUppercase ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5 opacity-40" />}
+                  <span
+                    className={`flex items-center gap-1.5 ${hasUppercase ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}
+                  >
+                    {hasUppercase ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <X className="h-3.5 w-3.5 opacity-40" />
+                    )}
                     At least one uppercase letter (A-Z)
                   </span>
-                  <span className={`flex items-center gap-1.5 ${hasNumber ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}>
-                    {hasNumber ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5 opacity-40" />}
+                  <span
+                    className={`flex items-center gap-1.5 ${hasNumber ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}
+                  >
+                    {hasNumber ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <X className="h-3.5 w-3.5 opacity-40" />
+                    )}
                     At least one number (0-9)
                   </span>
-                  <span className={`flex items-center gap-1.5 ${hasSpecial ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}>
-                    {hasSpecial ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5 opacity-40" />}
+                  <span
+                    className={`flex items-center gap-1.5 ${hasSpecial ? "text-emerald-600 dark:text-emerald-400 font-medium" : ""}`}
+                  >
+                    {hasSpecial ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <X className="h-3.5 w-3.5 opacity-40" />
+                    )}
                     Special character (Optional)
                   </span>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -208,11 +271,17 @@ export default function ResetPasswordPage() {
               <div className="space-y-1">
                 <h2 className="text-base font-semibold">Password Changed!</h2>
                 <p className="text-xs text-muted-foreground">
-                  Your password has been successfully updated. You can now log in using your new credentials.
+                  Your password has been successfully updated. You can now log
+                  in using your new credentials.
                 </p>
               </div>
 
-              <Button type="button" className="w-full" size="lg" onClick={() => navigate("/login")}>
+              <Button
+                type="button"
+                className="w-full"
+                size="lg"
+                onClick={() => navigate("/login")}
+              >
                 Sign In Now
               </Button>
             </div>

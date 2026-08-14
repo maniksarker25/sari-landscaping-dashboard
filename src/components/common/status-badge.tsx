@@ -24,9 +24,9 @@ const messageStatusLabel: Record<string, string> = {
   archived: "Archived",
 };
 
-export function MessageStatusBadge({ status }: { status: MessageStatus | string }) {
-  const normalized = String(status).toLowerCase();
+export function MessageStatusBadge({ status }: { status?: MessageStatus | string }) {
+  const normalized = String(status || "").toLowerCase();
   const variant = messageStatusVariant[normalized] || "default";
-  const label = messageStatusLabel[normalized] || String(status);
+  const label = messageStatusLabel[normalized] || String(status || "New");
   return <Badge variant={variant}>{label}</Badge>;
 }

@@ -12,6 +12,7 @@ import LoginPage from "@/pages/login/login-page";
 import ForgotPasswordPage from "@/pages/auth/forgot-password-page";
 import ResetPasswordPage from "@/pages/auth/reset-password-page";
 import MessagesPage from "@/pages/messages/messages-page";
+import MessageDetailPage from "@/pages/messages/message-detail-page";
 import NotFoundPage from "@/pages/not-found-page";
 import ServicesPage from "@/pages/services/services-page";
 import SettingsPage from "@/pages/settings/settings-page";
@@ -50,6 +51,7 @@ export default function App() {
                 />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/messages" element={<MessagesPage />} />
+                <Route path="/messages/:id" element={<MessageDetailPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Route>
