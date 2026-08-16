@@ -5,14 +5,20 @@ export type { CommonContentItem };
 
 export const privacyPolicyApi = baseApis.injectEndpoints({
   endpoints: (builder) => ({
-    getPrivacyPolicy: builder.query<ApiResponse<CommonContentItem[] | CommonContentItem>, void>({
+    getPrivacyPolicy: builder.query<
+      ApiResponse<CommonContentItem[] | CommonContentItem>,
+      void
+    >({
       query: () => ({
         url: "/manage/get-privacy-policy",
         method: "GET",
       }),
       providesTags: ["privacy-policy"],
     }),
-    addPrivacyPolicy: builder.mutation<ApiResponse<CommonContentItem>, { title: string; content: string }>({
+    addPrivacyPolicy: builder.mutation<
+      ApiResponse<CommonContentItem>,
+      { title: string; description: string }
+    >({
       query: (body) => ({
         url: "/manage/add-privacy-policy",
         method: "POST",
@@ -22,7 +28,7 @@ export const privacyPolicyApi = baseApis.injectEndpoints({
     }),
     editPrivacyPolicy: builder.mutation<
       ApiResponse<CommonContentItem>,
-      { id: string; data: { title?: string; content?: string } }
+      { id: string; data: { title?: string; description?: string } }
     >({
       query: ({ id, data }) => ({
         url: `/manage/edit-privacy-policy/${id}`,

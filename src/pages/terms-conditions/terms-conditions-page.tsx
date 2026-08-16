@@ -9,7 +9,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Tiptap from "@/components/common/Tiptap";
@@ -40,7 +39,7 @@ export default function TermsConditionsPage() {
         ? response.data[0]
         : response.data;
       if (item) {
-        setContent(item.content || "");
+        setContent(item?.description || "");
         setDocId(item._id || item.id || null);
       }
     }
@@ -55,13 +54,13 @@ export default function TermsConditionsPage() {
       if (docId) {
         await editTerms({
           id: docId,
-          data: { title: "terms-conditions-title", content },
+          data: { title: "terms-conditions-title", description: content },
         }).unwrap();
         toast.success("Terms & Conditions updated successfully!");
       } else {
         const res = await addTerms({
           title: "terms-conditions-title",
-          content,
+          description: content,
         }).unwrap();
         if (res?.data) {
           const newItem = Array.isArray(res.data) ? res.data[0] : res.data;

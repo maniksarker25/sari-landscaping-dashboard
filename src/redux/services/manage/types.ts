@@ -2,7 +2,7 @@ export interface CommonContentItem {
   _id?: string;
   id?: string;
   title: string;
-  content: string;
+  description: string;
   createdAt?: string;
   updatedAt?: string;
 }

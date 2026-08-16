@@ -5,14 +5,20 @@ export type { CommonContentItem };
 
 export const termsConditionsApi = baseApis.injectEndpoints({
   endpoints: (builder) => ({
-    getTermsConditions: builder.query<ApiResponse<CommonContentItem[] | CommonContentItem>, void>({
+    getTermsConditions: builder.query<
+      ApiResponse<CommonContentItem[] | CommonContentItem>,
+      void
+    >({
       query: () => ({
         url: "/manage/get-terms-conditions",
         method: "GET",
       }),
       providesTags: ["terms-conditions"],
     }),
-    addTermsConditions: builder.mutation<ApiResponse<CommonContentItem>, { title: string; content: string }>({
+    addTermsConditions: builder.mutation<
+      ApiResponse<CommonContentItem>,
+      { title: string; description: string }
+    >({
       query: (body) => ({
         url: "/manage/add-terms-conditions",
         method: "POST",
@@ -22,7 +28,7 @@ export const termsConditionsApi = baseApis.injectEndpoints({
     }),
     editTermsConditions: builder.mutation<
       ApiResponse<CommonContentItem>,
-      { id: string; data: { title?: string; content?: string } }
+      { id: string; data: { title?: string; description?: string } }
     >({
       query: ({ id, data }) => ({
         url: `/manage/edit-terms-conditions/${id}`,
