@@ -41,7 +41,7 @@ export default function PrivacyPolicyPage() {
         ? response.data[0]
         : response.data;
       if (item) {
-        setContent(item.content || "");
+        setContent(item?.description || "");
         setDocId(item._id || item.id || null);
       }
     }
@@ -56,13 +56,13 @@ export default function PrivacyPolicyPage() {
       if (docId) {
         await editPrivacy({
           id: docId,
-          data: { title: "privacy-title", content },
+          data: { title: "privacy-title", description: content },
         }).unwrap();
         toast.success("Privacy Policy updated successfully!");
       } else {
         const res = await addPrivacy({
           title: "privacy-title",
-          content,
+          description: content,
         }).unwrap();
         if (res?.data) {
           const newItem = Array.isArray(res.data) ? res.data[0] : res.data;
