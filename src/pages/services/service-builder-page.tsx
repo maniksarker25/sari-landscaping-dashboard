@@ -370,57 +370,57 @@ export default function ServiceBuilderPage() {
         : "POST /service/create-draft";
 
     // Format & output clear developer payload in browser dev console
-    console.group(
-      "%c🚀 SUBMITTING MULTIPART SERVICE FORM DATA PAYLOAD",
-      "color: #06b6d4; font-size: 13px; font-weight: bold;",
-    );
-    console.log("📍 Target Endpoint:", endpoint);
+    // console.group(
+    //   "%c🚀 SUBMITTING MULTIPART SERVICE FORM DATA PAYLOAD",
+    //   "color: #06b6d4; font-size: 13px; font-weight: bold;",
+    // );
+    // console.log("📍 Target Endpoint:", endpoint);
 
     try {
       const rawDataStr = formData.get("data") as string;
-      console.log("📄 Key 'data' (Parsed Object):", JSON.parse(rawDataStr));
-      console.log("📄 Key 'data' (Raw JSON String):", rawDataStr);
+      // console.log("📄 Key 'data' (Parsed Object):", JSON.parse(rawDataStr));
+      // console.log("📄 Key 'data' (Raw JSON String):", rawDataStr);
     } catch (err) {
-      console.log("📄 Key 'data':", formData.get("data"));
+      // console.log("📄 Key 'data':", formData.get("data"));
     }
 
     if (formData.has("service_image")) {
-      console.log(
-        "🖼️ Key 'service_image' (File):",
-        formData.get("service_image"),
-      );
+      // console.log(
+      //   "🖼️ Key 'service_image' (File):",
+      //   formData.get("service_image"),
+      // );
     } else {
-      console.log(
-        "🖼️ Key 'service_image': None (keeping existing URL or default)",
-      );
+      // console.log(
+      //   "🖼️ Key 'service_image': None (keeping existing URL or default)",
+      // );
     }
 
     if (formData.has("galleryImageMap")) {
       try {
         const mapStr = formData.get("galleryImageMap") as string;
-        console.log(
-          "🗺️ Key 'galleryImageMap' (Parsed Array):",
-          JSON.parse(mapStr),
-        );
-        console.log("🗺️ Key 'galleryImageMap' (Raw JSON):", mapStr);
+        // console.log(
+        //   "🗺️ Key 'galleryImageMap' (Parsed Array):",
+        //   JSON.parse(mapStr),
+        // );
+        // console.log("🗺️ Key 'galleryImageMap' (Raw JSON):", mapStr);
       } catch (err) {
-        console.log(
-          "🗺️ Key 'galleryImageMap':",
-          formData.get("galleryImageMap"),
-        );
+        // console.log(
+        //   "🗺️ Key 'galleryImageMap':",
+        //   formData.get("galleryImageMap"),
+        // );
       }
     } else {
-      console.log("🗺️ Key 'galleryImageMap': None");
+      // console.log("🗺️ Key 'galleryImageMap': None");
     }
 
     const galleryFiles = formData.getAll("gallery_images");
     if (galleryFiles.length > 0) {
-      console.log("📁 Key 'gallery_images' (Files Array):", galleryFiles);
+      // console.log("📁 Key 'gallery_images' (Files Array):", galleryFiles);
     } else {
-      console.log("📁 Key 'gallery_images': None");
+      // console.log("📁 Key 'gallery_images': None");
     }
 
-    console.groupEnd();
+    // console.groupEnd();
 
     try {
       if (isEditing) {
@@ -442,7 +442,7 @@ export default function ServiceBuilderPage() {
       }
       navigate("/services");
     } catch (error: any) {
-      console.error("Save service error:", error);
+      // console.error("Save service error:", error);
       toast.error(
         error?.data?.message ||
           "Failed to save service. Check backend connection.",
