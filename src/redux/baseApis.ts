@@ -4,7 +4,7 @@ import { RootState } from "./store";
 const baseApis = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_BASE_URL || "https://57n8wl91-5000.inc1.devtunnels.ms/api/v1",
+    baseUrl: "https://api.dreamfloor.ae/api/v1",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.accessToken;
       if (token) {
@@ -15,8 +15,11 @@ const baseApis = createApi({
   }),
   tagTypes: [
     "user",
-    "Service",
     "gallery",
+    "legal-info",
+    "contact",
+    "Service",
+    "testimonial",
     "about-us",
     "contact-us",
     "faq",
@@ -24,9 +27,6 @@ const baseApis = createApi({
     "privacy-policy",
     "slider",
     "terms-conditions",
-    "testimonial",
-    "contact",
-    "legal-info",
   ],
   endpoints: () => ({}),
 });
