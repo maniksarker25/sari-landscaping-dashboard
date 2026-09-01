@@ -98,7 +98,7 @@ export default function LoginPage() {
           (location.state as { from?: Location })?.from?.pathname ?? "/";
         navigate(redirectTo, { replace: true });
       } catch (profileErr: any) {
-        console.error("Failed to fetch user profile:", profileErr);
+        // console.error("Failed to fetch user profile:", profileErr);
         dispatch(logout());
         const errorMsg =
           profileErr?.data?.message ||
@@ -107,7 +107,7 @@ export default function LoginPage() {
         setServerError(errorMsg);
       }
     } catch (loginErr: any) {
-      console.error("Login request failed:", loginErr);
+      // console.error("Login request failed:", loginErr);
       const errorMessage =
         loginErr?.data?.message ||
         loginErr?.message ||
@@ -125,7 +125,7 @@ export default function LoginPage() {
             <Waves className="h-6 w-6" />
           </span>
           <h1 className="mt-4 text-xl font-semibold tracking-tight">
-            Sari Landscaping Admin
+            DFL Admin
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to manage your dashboard content

@@ -86,11 +86,11 @@ export default function ResetPasswordPage() {
     //   body: JSON.stringify(payload),
     // });
     // =========================================================================
-    console.log(
-      "%c[API Integration Ready] Set New Password Submitted:",
-      "color: #10b981; font-weight: bold; font-size: 13px;",
-      payload,
-    );
+    // console.log(
+    //   "%c[API Integration Ready] Set New Password Submitted:",
+    //   "color: #10b981; font-weight: bold; font-size: 13px;",
+    //   payload,
+    // );
 
     toast.success("Password reset successfully!");
     setIsSuccess(true);
