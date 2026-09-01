@@ -62,15 +62,15 @@ export default function ForgotPasswordPage() {
     //   body: JSON.stringify(values),
     // });
     // =========================================================================
-    console.log(
-      "%c[API Integration Ready] Forgot Password Request:",
-      "color: #10b981; font-weight: bold; font-size: 13px;",
-      {
-        action: "FORGOT_PASSWORD_REQUEST",
-        email: values.email,
-        timestamp: new Date().toISOString(),
-      },
-    );
+    // console.log(
+    //   "%c[API Integration Ready] Forgot Password Request:",
+    //   "color: #10b981; font-weight: bold; font-size: 13px;",
+    //   {
+    //     action: "FORGOT_PASSWORD_REQUEST",
+    //     email: values.email,
+    //     timestamp: new Date().toISOString(),
+    //   },
+    // );
 
     toast.success("Password reset instructions sent!");
     setSubmittedEmail(values.email);
@@ -81,15 +81,15 @@ export default function ForgotPasswordPage() {
   function handleResend() {
     if (resendCooldown > 0) return;
 
-    console.log(
-      "%c[API Integration Ready] Resend Password Reset Email:",
-      "color: #3b82f6; font-weight: bold; font-size: 13px;",
-      {
-        action: "RESEND_RESET_EMAIL",
-        email: submittedEmail,
-        timestamp: new Date().toISOString(),
-      },
-    );
+    // console.log(
+    //   "%c[API Integration Ready] Resend Password Reset Email:",
+    //   "color: #3b82f6; font-weight: bold; font-size: 13px;",
+    //   {
+    //     action: "RESEND_RESET_EMAIL",
+    //     email: submittedEmail,
+    //     timestamp: new Date().toISOString(),
+    //   },
+    // );
 
     toast.info("A new reset email has been dispatched.");
     setResendCooldown(30);

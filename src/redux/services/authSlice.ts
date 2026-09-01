@@ -30,7 +30,7 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ user: any; accessToken: string }>
     ) => {
-      console.log("userPaylod",action.payload)
+      // console.log("userPaylod",action.payload)
         const { user, accessToken } = action.payload;
 
 

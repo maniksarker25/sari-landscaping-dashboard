@@ -351,7 +351,7 @@ function GalleryImagePicker({
       try {
         onFileSelect(file);
       } catch (err) {
-        console.error("Error processing gallery file:", err);
+        // console.error("Error processing gallery file:", err);
       } finally {
         setIsProcessing(false);
       }
@@ -577,7 +577,7 @@ export function GalleryGridEditor({ index }: EditorProps) {
             toast.success(`Added ${validFiles.length} image(s) to gallery.`);
           }
         } catch (err) {
-          console.error("Error batch processing gallery files:", err);
+          // console.error("Error batch processing gallery files:", err);
         } finally {
           setIsBatchProcessing(false);
         }

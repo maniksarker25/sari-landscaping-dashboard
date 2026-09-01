@@ -148,7 +148,7 @@ export function GalleryFormDialog({
       }
       onOpenChange(false);
     } catch (error: any) {
-      console.error("Gallery submit error:", error);
+      // console.error("Gallery submit error:", error);
       toast.error(
         error?.data?.message ||
           "An error occurred while saving the gallery item.",

@@ -40,7 +40,7 @@ export function PresetImages() {
         setValue("featuredImage", previewUrl);
         toast.success(`Attached "${file.name}" as featured image.`);
       } catch (err) {
-        console.error("Error setting featured image:", err);
+        // console.error("Error setting featured image:", err);
       } finally {
         setIsProcessing(false);
       }
